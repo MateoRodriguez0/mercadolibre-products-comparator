@@ -18,5 +18,5 @@ spring:
 ````
 
 
-## discovery 
+## Discovery 
 registers as DiscoveryClient on a eureka server that in the url http://localhost:8761/eureka.
