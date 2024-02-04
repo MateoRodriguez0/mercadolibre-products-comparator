@@ -1,0 +1,19 @@
+package com.mercadolibre.productscomparator.config;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.StandardEnvironment;
+
+@SpringBootApplication
+public class ClienteConfigPruebaApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(ClienteConfigPruebaApplication.class, args);
+		Environment environment= new StandardEnvironment();
+		System.out.println(environment.getProperty("ruta.prueba"));
+	}
+
+	;
+}

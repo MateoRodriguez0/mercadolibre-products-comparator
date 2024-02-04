@@ -1,0 +1,15 @@
+eclipse.preferences.version=1
+org.springframework.ide.eclipse.boot.wizard.PopularityTracker.cloud-config-server=1
+org.springframework.ide.eclipse.boot.wizard.PopularityTracker.devtools=1
+org.springframework.ide.eclipse.boot.wizard.PreferredSelections.artifactId=config-server
+org.springframework.ide.eclipse.boot.wizard.PreferredSelections.bootVersion=3.2.2
+org.springframework.ide.eclipse.boot.wizard.PreferredSelections.description=servidor de configuracion para los microservicios de la app MercadLlibre ProductsComparator
+org.springframework.ide.eclipse.boot.wizard.PreferredSelections.groupId=com.mercadolibre.productscomparator.config
+org.springframework.ide.eclipse.boot.wizard.PreferredSelections.javaVersion=17
+org.springframework.ide.eclipse.boot.wizard.PreferredSelections.language=java
+org.springframework.ide.eclipse.boot.wizard.PreferredSelections.name=config-server
+org.springframework.ide.eclipse.boot.wizard.PreferredSelections.packageName=com.mercadolibre.productscomparator.config
+org.springframework.ide.eclipse.boot.wizard.PreferredSelections.packaging=war
+org.springframework.ide.eclipse.boot.wizard.PreferredSelections.type=MAVEN
+org.springframework.ide.eclipse.boot.wizard.PreferredSelections.version=0.0.1-SNAPSHOT
+org.springframework.ide.eclipse.boot.wizard.initializr.url=https\://start.spring.io\n

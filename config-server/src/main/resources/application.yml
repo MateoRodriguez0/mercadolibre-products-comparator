@@ -1,0 +1,42 @@
+server:
+  port: 8887
+spring:
+  application:
+    name: config-server
+  cloud:
+    config:
+      server:
+        git:
+          #url del repositorio git donde se encuentran los archivos de propiedades
+          uri: https://github.com/MateoRodriguez0/mercadolibre-products-comparator-config.git
+          # evitamos validacion de certificado ssl al utilizar el protocolo https
+          skip-ssl-validation: true
+          #tiempo de espera para conectarse al repositorio remoto(en segundos)
+          timeout: 10
+          
+          #autenticacion
+          username: MateoRodriguez0
+          password: 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
+          #frecuencia con la que se actualizará el servidor
+          refresh-rate: 0          
+          #rama del repositorio por defecto
+          default-label: main
+  security:
+    user:
+      name: Productcomparatorserviceconfig
+      password: client12345
+
+#Registramos el este de configuracion en eureka server
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  #nombre con el que se registará el servicio    
+  instance:
+    instance-id: ${spring.application.name}
+    #metadatos del servicio (incluimos las credenciales del usuario)
+    metadata-map:
+      user: ${spring.security.user.name}
+      password: ${spring.security.user.password}
+
+  

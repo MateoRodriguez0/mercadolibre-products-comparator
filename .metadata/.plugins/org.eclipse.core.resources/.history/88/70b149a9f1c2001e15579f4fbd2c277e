@@ -1,0 +1,25 @@
+server:
+  port: 8888
+spring:
+  application:
+    name: configserver
+  cloud:
+    config:
+      server:
+        git:
+          #url del repositorio git donde se encuentran los archivos de propiedades
+          uri: https://github.com/MateoRodriguez0/mercadolibre-products-comparator-config.git
+          # evitamos validacion de certificado ssl al utilizar el protocolo https
+          skip-ssl-validation: true
+          #tiempo de espera para conectarse al repositorio remoto(en segundos)
+          timeout: 10
+          
+          #autenticacion
+          username: MateoRodriguez0
+          password: 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
+          #frecuencia con la que se actualizará el servidor
+          refresh-rate: 0          
+          
+      
+
+  

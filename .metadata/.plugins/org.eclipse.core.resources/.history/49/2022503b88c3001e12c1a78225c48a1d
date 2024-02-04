@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: servicio-prueba
+  cloud:
+    config:
+      uri:
+      - http://localhost:8887
+my:
+  proiper: jss
+ 

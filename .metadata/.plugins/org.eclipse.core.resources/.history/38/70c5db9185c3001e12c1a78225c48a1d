@@ -1,0 +1,2 @@
+spring.application.name: servicio-prueba
+spring.cloud.configu.uri: http://localhost:8887

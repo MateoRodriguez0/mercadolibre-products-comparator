@@ -1,0 +1,23 @@
+INDEX VERSION 1.134+C:\Users\mateo\OneDrive\Documentos\MercadoLibre-comparator-App\.metadata\.plugins\org.eclipse.jdt.core
+3376027006.index
+2863250350.index
+3739600093.index
+2342397219.index
+1563080460.index
+2356588431.index
+974364105.index
+591420210.index
+4287328627.index
+3867125622.index
+1931816042.index
+1150918528.index
+889705426.index
+4128832372.index
+337149631.index
+2227838403.index
+1155582967.index
+3324458286.index
+1084903631.index
+172016224.index
+251454641.index
+1865797976.index

@@ -1,0 +1,11 @@
+server:
+  port: 9090
+  
+spring:
+  cloud:
+    config:
+      uri: 
+      - http://localhost:8887
+
+  config:
+    import: 'optional:configserver:'
