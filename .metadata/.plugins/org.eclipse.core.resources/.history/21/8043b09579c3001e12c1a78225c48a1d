@@ -1,6 +1,0 @@
-server:
-  port: 9090
-  
-spring:
-  config:
-    import: "optional:configserver:"

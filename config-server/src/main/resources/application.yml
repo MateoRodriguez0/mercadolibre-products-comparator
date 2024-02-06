@@ -1,5 +1,5 @@
 server:
-  port: 8887
+  port: 8888
 spring:
   application:
     name: config-server
@@ -16,7 +16,7 @@ spring:
           
           #autenticacion
           username: MateoRodriguez0
-          password: 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
+          password: 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
           #frecuencia con la que se actualizará el servidor
           refresh-rate: 0          
           #rama del repositorio por defecto
@@ -33,7 +33,8 @@ eureka:
       defaultZone: http://localhost:8761/eureka/
   #nombre con el que se registará el servicio    
   instance:
-    instance-id: ${spring.application.name}
+    
+    instance-id: ${spring.application.name}:${server.port}
     #metadatos del servicio (incluimos las credenciales del usuario)
     metadata-map:
       user: ${spring.security.user.name}
