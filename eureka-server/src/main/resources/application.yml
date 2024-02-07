@@ -3,7 +3,18 @@ server:
 spring:
   application:
     name: eureka-server
+  security:
+  
+    user:
+      name: eurekaclient 
+      password: eurekaclient
+  devtools:
+    livereload:
+      port: 10001
 eureka:
   client:
     fetch-registry: false
     register-with-eureka: false
+    service-url:
+      defaultZone: http://eurekaclient:eurekaclient@localhost:8761/eureka/
+   
