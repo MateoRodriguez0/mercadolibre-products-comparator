@@ -1,0 +1,33 @@
+server:
+  port: 8091
+spring:
+  application:
+    name: analisi-url-service
+  cloud:
+    openfeign:
+      circuitbreaker:
+        enabled: true
+      client:
+        config:
+          sites:
+            connect-timeout: 8000
+            read-timeout: 5000
+          
+          #Pendiente para optimizar configuracion de la reciliencia
+#-----------------------------------------------------------------------
+resilience4j:
+  circuitbreaker:
+    instances:
+      MercadoLibreSitesClientgetPaises:
+        failure-rate-threshold: 10
+        max-wait-duration-in-half-open-state: 20s
+        permitted-number-of-calls-in-half-open-state: 5
+        minimum-number-of-calls: 5
+        sliding-window-size: 10
+        
+  timelimiter:
+    instances:
+      MercadoLibreSitesClientgetPaises:
+        timeoutDuration: 10s
+        
+#----------------------------------------------------------------------
