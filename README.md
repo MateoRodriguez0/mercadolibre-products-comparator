@@ -6,5 +6,4 @@ To authenticate you must register with your Mercadolibre account in the app at t
 
 ````https
 https://auth.mercadolibre.com.co/authorization?response_type=code&client_id=7688862085485252&redirect_uri=https://mercadolibrecomparator.com
-
 ````
