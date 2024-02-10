@@ -5,7 +5,6 @@ In order to access the application resources, the Authentication and Authorizati
 To authenticate you must register with your Mercadolibre account in the app at the url.
 
 ````https
-https://auth.mercadolibre.com.co/authorization?response_type=code&client_id=7688862085485252
-&redirect_uri=https://mercadolibrecomparator.com
+https://auth.mercadolibre.com.co/authorization?response_type=code&client_id=7688862085485252&redirect_uri=https://mercadolibrecomparator.com
 
 ````
