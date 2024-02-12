@@ -16,27 +16,28 @@ spring:
           
           #autenticacion
           username: MateoRodriguez0
-          password: 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
+          password: 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
           #frecuencia con la que se actualizará el servidor
           refresh-rate: 0          
           #rama del repositorio por defecto
           default-label: main
+          
   security:
     user:
-      name: Productcomparatorserviceconfig
-      password: client12345
+      name: config
+      password: config
+   
   devtools:
     livereload:
       port: 10002
 #Registramos el este de configuracion en eureka server
 eureka:
   client:
-    
     service-url:
       defaultZone: http://eurekaclient:eurekaclient@localhost:8761/eureka/
   #nombre con el que se registará el servicio    
   instance:
-    
+    hostname: localhost
     instance-id: ${spring.application.name}:${server.port}
     #metadatos del servicio (incluimos las credenciales del usuario)
     metadata-map:
