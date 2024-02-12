@@ -31,6 +31,7 @@ public class AnalisisUrlServiceImpl implements AnalisisUrlService {
 		return false;
 	}
 
+	
 	@Override
 	public UrlDetails CreateDetailsUrl(String url) {
 		String code=serchCodeForUrl(url);
@@ -50,6 +51,11 @@ public class AnalisisUrlServiceImpl implements AnalisisUrlService {
 	}
 	
 	
+	/**
+	 * 
+	 * @param url Es la url desicfrara el codigo del producto
+	 * @return Devuelve el codigo del producto 
+	 */
 	public String serchCodeForUrl(String url){
 		StringBuilder codigo=new StringBuilder();
 		int initcode=0;
