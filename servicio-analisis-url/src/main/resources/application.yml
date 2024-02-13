@@ -12,7 +12,7 @@ spring:
             connect-timeout: 8000
             read-timeout: 5000
 
-          #Pendiente para optimizar configuracion de la reciliencia
+          #Pendiente para optimizar configuracion de la resiliencia
 #-----------------------------------------------------------------------
 resilience4j:
   circuitbreaker:
@@ -27,6 +27,6 @@ resilience4j:
   timelimiter:
     instances:
       MercadoLibreSitesClientgetPaises:
-        timeoutDuration: 10s
+        timeoutDuration: 5s
         
 #----------------------------------------------------------------------

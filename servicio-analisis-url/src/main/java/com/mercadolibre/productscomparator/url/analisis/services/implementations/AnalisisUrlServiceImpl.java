@@ -16,7 +16,7 @@ public class AnalisisUrlServiceImpl implements AnalisisUrlService {
 	@Override
 	public boolean ContainIdProductCatalogo(String url) {
 		String code=serchCodeForUrl(url);
-		if(code.contains("-")) {
+		if(!code.contains("-")) {
 			return true;
 		}
 		return false;
@@ -25,7 +25,7 @@ public class AnalisisUrlServiceImpl implements AnalisisUrlService {
 	@Override
 	public boolean ContainIdItem(String url) {
 		String code=serchCodeForUrl(url);
-		if(!code.contains("-")) {
+		if(code.contains("-")) {
 			return true;
 		}
 		return false;
@@ -42,6 +42,7 @@ public class AnalisisUrlServiceImpl implements AnalisisUrlService {
 				.build();
 		
 		if(ContainIdItem(url)) {
+			details.setId(code.replace("-", ""));
 			details.setCatalog_product_id(null);
 		}
 		else {
@@ -79,7 +80,7 @@ public class AnalisisUrlServiceImpl implements AnalisisUrlService {
 		
 		if(codigo.length()!=0) {
 	
-			for (char c : url.substring(initcode+codigo.length()+1).toCharArray()) {
+			for (char c : url.substring(initcode+codigo.length()).toCharArray()) {
 				 
 		        if (Character.isDigit(c)) {
 		        	codigo.append(c);
