@@ -1,0 +1,9 @@
+spring:
+  cloud:
+    openfeign:
+      client:
+        config:
+          users:
+            url: https://api.mercadolibre.com
+            
+         
