@@ -9,7 +9,13 @@ import org.springframework.stereotype.Service;
 import com.mercadolibre.productscomparator.url.analisis.clients.MercadoLibreSitesClient;
 import com.mercadolibre.productscomparator.url.analisis.models.UrlDetails;
 import com.mercadolibre.productscomparator.url.analisis.services.AnalisisUrlService;
-
+/**
+ * Clase de servicio para busqueda de codigo de item o 
+ * deproducto de catalogo en la url de una publicacion en mercadolibre.
+ * 
+ * @Author Mateo Rodrigez c.
+ * 18 feb. 2024 11:48:16 a. m.
+ */
 @Service
 public class AnalisisUrlServiceImpl implements AnalisisUrlService {
 
@@ -63,25 +69,19 @@ public class AnalisisUrlServiceImpl implements AnalisisUrlService {
 	
 
 		for (String site : getPaises()) {
-	
+			// Validar que el codigo sea de un item 
 			if(initcode==0&& url.contains(site+"-")) {
 				initcode=url.indexOf(site);
 				codigo.append(site).append("-");
 			}
-			
-			if(initcode==0&& url.contains(site)){
-				initcode=url.indexOf(site);
+			// Validar que el codigo sea de un prodcuto de catalogo 
+			if(initcode==0&& url.contains("p/"+site)){
+				initcode=url.indexOf("p/"+site)+2;
 				codigo.append(site);
-			}
-			
-			
+			}		
 		}
-		
-		
 		if(codigo.length()!=0) {
-	
 			for (char c : url.substring(initcode+codigo.length()).toCharArray()) {
-				 
 		        if (Character.isDigit(c)) {
 		        	codigo.append(c);
 
@@ -95,7 +95,6 @@ public class AnalisisUrlServiceImpl implements AnalisisUrlService {
 	
 	
 	private List<String> getPaises(){
-		
 		return client.getPaises()
 				.stream()
 				.map(j ->j.get("id").asText())

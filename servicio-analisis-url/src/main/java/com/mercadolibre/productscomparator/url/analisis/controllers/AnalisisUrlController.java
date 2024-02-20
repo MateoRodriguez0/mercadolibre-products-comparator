@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.mercadolibre.productscomparator.url.analisis.models.UrlDetails;
 import com.mercadolibre.productscomparator.url.analisis.services.AnalisisUrlService;
+import com.mercadolibre.productscomparator.url.analisis.util.UrlValidator;
 
 /**
  * Controlador rest obtener los detalles un producto correspondiente a una url.
@@ -22,14 +23,14 @@ public class AnalisisUrlController {
 	
 	@GetMapping(value="/searchcode")
 	public ResponseEntity<UrlDetails> getCodeForUrl(@RequestParam(name = "url")String url) {
-		if(url.startsWith("https")) {
+		if(UrlValidator.validate(url)) {
 			return ResponseEntity
-					.ok(analisisUrlServiceient.CreateDetailsUrl(url));
+	        		.ok(analisisUrlServiceient.CreateDetailsUrl(url));
 		}
 		return ResponseEntity
-				.status(HttpStatus.NOT_ACCEPTABLE)
-				.body(null);	
-	}
+	    			.status(HttpStatus.NOT_ACCEPTABLE)
+	    			.body(null);	
+		}
 	
 	 @Autowired
 	 private AnalisisUrlService analisisUrlServiceient;
