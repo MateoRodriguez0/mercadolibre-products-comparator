@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.mercadolibre.productscomparator.url.analisis.models.UrlDetails;
+import com.mercadolibre.productscomparator.url.analisis.models.ItemDetails;
 import com.mercadolibre.productscomparator.url.analisis.services.AnalisisUrlService;
 import com.mercadolibre.productscomparator.url.analisis.util.UrlValidator;
 
@@ -20,10 +20,16 @@ import com.mercadolibre.productscomparator.url.analisis.util.UrlValidator;
 @RestController
 public class AnalisisUrlController {
 
-	
+	/**
+	 * Analisa la url de un articulo publicado en MercadoLibre, busca
+	 * y devuelve el id del item o del producto de catalogo encontrado en la url.
+	 * 
+	 * @param url Es la direccion del producto en MercadoLibre.
+	 * @return Devuelve un Objeto ItemDetails Correspondiene a la url recibida como parametro.
+	 */
 	@GetMapping(value="/searchcode")
-	public ResponseEntity<UrlDetails> getCodeForUrl(@RequestParam(name = "url")String url) {
-		if(UrlValidator.validate(url)) {
+	public ResponseEntity<ItemDetails> getCodeForUrl(@RequestParam(name = "url")String url) {
+		if(UrlValidator.resourceFound(url)) {
 			return ResponseEntity
 	        		.ok(analisisUrlServiceient.CreateDetailsUrl(url));
 		}

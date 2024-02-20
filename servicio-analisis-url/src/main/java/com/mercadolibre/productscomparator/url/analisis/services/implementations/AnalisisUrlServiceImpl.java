@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.mercadolibre.productscomparator.url.analisis.clients.MercadoLibreSitesClient;
-import com.mercadolibre.productscomparator.url.analisis.models.UrlDetails;
+import com.mercadolibre.productscomparator.url.analisis.models.ItemDetails;
 import com.mercadolibre.productscomparator.url.analisis.services.AnalisisUrlService;
 /**
  * Clase de servicio para busqueda de codigo de item o 
@@ -20,17 +20,7 @@ import com.mercadolibre.productscomparator.url.analisis.services.AnalisisUrlServ
 public class AnalisisUrlServiceImpl implements AnalisisUrlService {
 
 	@Override
-	public boolean ContainIdProductCatalogo(String url) {
-		String code=serchCodeForUrl(url);
-		if(!code.contains("-")) {
-			return true;
-		}
-		return false;
-	}
-
-	@Override
-	public boolean ContainIdItem(String url) {
-		String code=serchCodeForUrl(url);
+	public boolean ContainIdItem(String code) {
 		if(code.contains("-")) {
 			return true;
 		}
@@ -39,15 +29,15 @@ public class AnalisisUrlServiceImpl implements AnalisisUrlService {
 
 	
 	@Override
-	public UrlDetails CreateDetailsUrl(String url) {
+	public ItemDetails CreateDetailsUrl(String url) {
 		String code=serchCodeForUrl(url);
-		UrlDetails details= UrlDetails
+		ItemDetails details= ItemDetails
 				.builder()
 				.id(code)
 				.catalog_product_id(code)
 				.build();
 		
-		if(ContainIdItem(url)) {
+		if(ContainIdItem(code)) {
 			details.setId(code.replace("-", ""));
 			details.setCatalog_product_id(null);
 		}
@@ -93,7 +83,11 @@ public class AnalisisUrlServiceImpl implements AnalisisUrlService {
 		return codigo.toString();
 	}
 	
-	
+	/**
+	 * Utiliza el client para realizar una peticion al recurso de paises.
+	 * 
+	 * @return devuelve una lista que contiene los codigos de los paises.
+	 */
 	private List<String> getPaises(){
 		return client.getPaises()
 				.stream()
@@ -104,7 +98,8 @@ public class AnalisisUrlServiceImpl implements AnalisisUrlService {
 	
 	 @Autowired
 	 private MercadoLibreSitesClient client;
-	 
+
+
 	 
 	 
 }

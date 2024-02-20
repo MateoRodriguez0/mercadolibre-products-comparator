@@ -9,6 +9,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+/**
+ * Esta clase es la llamada en caso de que un cliente MercadoLibreSitesClient entre en CircuitBracker.
+ * 
+ * @Author Mateo Rodrigez c.
+ * 20 feb. 2024 11:26:31 a. m.
+ */
 @Component
 public class MercadoLibreSitesClientFallBack implements MercadoLibreSitesClient {
 
