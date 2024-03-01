@@ -16,7 +16,7 @@ It will redirect to the mercadolibre page to carry out the authentication proces
 
 [Spring Cloud Config](https://github.com/MateoRodriguez0/mercadolibre-products-comparator/blob/master/config-server/README.md)
 
-[Discovry service whit Netflix eureka](https://github.com/MateoRodriguez0/mercadolibre-products-comparator/blob/master/eureka-server/README.md)
+[Discovery service whit Netflix eureka](https://github.com/MateoRodriguez0/mercadolibre-products-comparator/blob/master/eureka-server/README.md)
 
 [Servicio-vendedores]()
 
