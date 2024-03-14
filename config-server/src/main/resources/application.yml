@@ -16,7 +16,7 @@ spring:
           
           #autenticacion
           username: MateoRodriguez0
-          password: password
+          password: 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
           #frecuencia con la que se actualizará el servidor
           refresh-rate: 0          
           #rama del repositorio por defecto

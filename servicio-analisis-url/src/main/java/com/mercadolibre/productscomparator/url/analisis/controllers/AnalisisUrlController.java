@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.mercadolibre.productscomparator.url.analisis.models.ItemDetails;
 import com.mercadolibre.productscomparator.url.analisis.services.AnalisisUrlService;
-import com.mercadolibre.productscomparator.url.analisis.util.UrlValidator;
+
 
 /**
  * Controlador rest obtener los detalles un producto correspondiente a una url.

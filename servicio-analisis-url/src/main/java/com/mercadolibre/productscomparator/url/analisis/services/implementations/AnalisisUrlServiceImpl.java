@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.StructuredTaskScope;
 import java.util.concurrent.StructuredTaskScope.Subtask;
-import java.util.concurrent.StructuredTaskScope.Subtask.State;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
