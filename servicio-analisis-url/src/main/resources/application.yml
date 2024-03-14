@@ -11,6 +11,9 @@ spring:
           sites:
             connect-timeout: 8000
             read-timeout: 5000
+  threads:
+    virtual:
+      enabled: true
 
           #Pendiente para optimizar configuracion de la resiliencia
 #-----------------------------------------------------------------------

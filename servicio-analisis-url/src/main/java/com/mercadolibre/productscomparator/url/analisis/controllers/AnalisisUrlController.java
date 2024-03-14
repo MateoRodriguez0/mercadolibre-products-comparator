@@ -29,9 +29,10 @@ public class AnalisisUrlController {
 	 */
 	@GetMapping(value="/searchcode")
 	public ResponseEntity<ItemDetails> getCodeForUrl(@RequestParam(name = "url")String url) {
-		if(UrlValidator.resourceFound(url)) {
+		ItemDetails details=analisisUrlServiceient.CreateDetailsUrl(url);
+		if(details!=null) {
 			return ResponseEntity
-	        		.ok(analisisUrlServiceient.CreateDetailsUrl(url));
+	        		.ok(details);
 		}
 		return ResponseEntity
 	    			.status(HttpStatus.NOT_ACCEPTABLE)

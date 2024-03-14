@@ -1,6 +1,10 @@
 package com.mercadolibre.productscomparator.url.analisis.services.implementations;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.StructuredTaskScope;
+import java.util.concurrent.StructuredTaskScope.Subtask;
+import java.util.concurrent.StructuredTaskScope.Subtask.State;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +13,7 @@ import org.springframework.stereotype.Service;
 import com.mercadolibre.productscomparator.url.analisis.clients.MercadoLibreSitesClient;
 import com.mercadolibre.productscomparator.url.analisis.models.ItemDetails;
 import com.mercadolibre.productscomparator.url.analisis.services.AnalisisUrlService;
+import com.mercadolibre.productscomparator.url.analisis.util.UrlValidator;
 /**
  * Clase de servicio para busqueda de codigo de item o 
  * deproducto de catalogo en la url de una publicacion en mercadolibre.
@@ -30,7 +35,23 @@ public class AnalisisUrlServiceImpl implements AnalisisUrlService {
 	
 	@Override
 	public ItemDetails CreateDetailsUrl(String url) {
-		String code=serchCodeForUrl(url);
+		Subtask<List<String>> paises=null;
+		Subtask<Boolean> valida=null;
+		
+		try(var scope= new StructuredTaskScope<>()){
+			paises=scope.fork(this::getPaises);
+			valida=scope.fork(() -> UrlValidator.resourceFound(url));
+		
+			scope.join();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		
+		if(!valida.get()) {
+			return null;
+		}
+		
+		String code=serchCodeForUrl(url,paises.get());
 		ItemDetails details= ItemDetails
 				.builder()
 				.id(code)
@@ -53,34 +74,49 @@ public class AnalisisUrlServiceImpl implements AnalisisUrlService {
 	 * @param url Es la url desicfrara el codigo del producto
 	 * @return Devuelve el codigo del producto 
 	 */
-	public String serchCodeForUrl(String url){
-		StringBuilder codigo=new StringBuilder();
-		int initcode=0;
+	public String serchCodeForUrl(String url,List<String>paises){
+		String codigo=null;
+		try(var scope= new StructuredTaskScope.ShutdownOnSuccess<String>()){
+			paises.forEach(site ->{
+				scope.fork(() -> searchCodeForPais(url, site));
+			});
+			scope.join();
+			codigo= scope.result();
+		} catch (InterruptedException | ExecutionException e) {}
+
+		return codigo;
 	
 
-		for (String site : getPaises()) {
-			// Validar que el codigo sea de un item 
-			if(initcode==0&& url.contains(site+"-")) {
-				initcode=url.indexOf(site);
-				codigo.append(site).append("-");
+		
+	}
+	
+	 private String searchCodeForPais(String url, String site) {
+		 StringBuilder codigo=new StringBuilder();
+		 int initcode=0;
+		 if(url.contains(site+"-")|url.contains("p/"+site)) {
+			 if(initcode==0&& url.contains(site+"-")) {
+					initcode=url.indexOf(site);
+					codigo.append(site).append("-");
+				}
+				// Validar que el codigo sea de un prodcuto de catalogo 
+			 if(initcode==0&& url.contains("p/"+site)){
+				 initcode=url.indexOf("p/"+site)+2;
+				 codigo.append(site);
+				}
 			}
-			// Validar que el codigo sea de un prodcuto de catalogo 
-			if(initcode==0&& url.contains("p/"+site)){
-				initcode=url.indexOf("p/"+site)+2;
-				codigo.append(site);
-			}		
-		}
-		if(codigo.length()!=0) {
-			for (char c : url.substring(initcode+codigo.length()).toCharArray()) {
-		        if (Character.isDigit(c)) {
-		        	codigo.append(c);
-
-		        } else {
-		            break;
-		        }
-			}
-		}
-		return codigo.toString();
+		 else {
+			 throw new RuntimeException();
+		 }
+		 for (char c : url.substring(initcode+codigo.length()).toCharArray()) {
+			 if (Character.isDigit(c)) {
+				 codigo.append(c);
+				 }
+			 else {
+				break;
+				}
+			 }
+		 return codigo.toString();
+	    
 	}
 	
 	/**
