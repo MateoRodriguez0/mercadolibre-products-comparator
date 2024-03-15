@@ -1,4 +1,4 @@
-package com.mercadolibre.productscomparator.vendedores.services;
+package com.products.compare.vendedores.services;
 
 public interface AuthorizathionService {
 

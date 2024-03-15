@@ -1,4 +1,4 @@
-package com.mercadolibre.productscomparator.vendedores.models;
+package com.products.compare.vendedores.models;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.AllArgsConstructor;
@@ -23,5 +23,5 @@ public class Seller {
 	private String experience;
 	private String location;
 	private JsonNode metrics;
-	private int response_time;
+	private String response_time;
 }

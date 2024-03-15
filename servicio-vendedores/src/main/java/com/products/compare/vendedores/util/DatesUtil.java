@@ -1,4 +1,4 @@
-package com.mercadolibre.productscomparator.vendedores.util;
+package com.products.compare.vendedores.util;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

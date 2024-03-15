@@ -1,4 +1,4 @@
-package com.mercadolibre.productscomparator.vendedores;
+package com.products.compare.vendedores;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

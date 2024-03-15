@@ -1,4 +1,4 @@
-package com.mercadolibre.productscomparator.vendedores.models;
+package com.products.compare.vendedores.models;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

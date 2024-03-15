@@ -1,4 +1,4 @@
-package com.mercadolibre.productscomparator.vendedores.clients;
+package com.products.compare.vendedores.clients;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.mercadolibre.productscomparator.vendedores.config.SellersClientConfig;
+import com.products.compare.vendedores.config.SellersClientConfig;
 
 @FeignClient(name = "users", configuration = SellersClientConfig.class)
 public interface SellerFeignClient {
@@ -24,9 +24,8 @@ public interface SellerFeignClient {
 	
 	@GetMapping(value = "/questions/search")
 	public  ResponseEntity<ObjectNode>  getTimeOfResponse(@RequestParam(name = "item")String itemId,
-			@RequestParam(name = "api_version")String api_version,@RequestParam(name = "offset")int offset);
+			@RequestParam(name = "api_version")String api_version,@RequestParam(name = "offset",defaultValue = "0")int offset);
 	
 	
-	
-	final String ss="";
+
 }

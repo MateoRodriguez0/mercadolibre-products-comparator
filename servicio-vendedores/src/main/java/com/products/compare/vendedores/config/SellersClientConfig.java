@@ -1,9 +1,9 @@
-package com.mercadolibre.productscomparator.vendedores.config;
+package com.products.compare.vendedores.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.mercadolibre.productscomparator.vendedores.services.AuthorizathionService;
+import com.products.compare.vendedores.services.AuthorizathionService;
 
 import feign.RequestInterceptor;
 

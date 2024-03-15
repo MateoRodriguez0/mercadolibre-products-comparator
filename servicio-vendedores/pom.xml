@@ -8,7 +8,7 @@
 		<version>3.2.3</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.mercadolibre.productscomparator</groupId>
+	<groupId>com.products.compare</groupId>
 	<artifactId>servicio-vendedores</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>war</packaging>
