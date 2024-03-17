@@ -1,4 +1,4 @@
-package com.mercadolibre.productscomparator.vendedores;
+package com.products.compare.vendedores;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
