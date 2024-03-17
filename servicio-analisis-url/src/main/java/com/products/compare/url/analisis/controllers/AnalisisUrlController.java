@@ -1,4 +1,4 @@
-package com.mercadolibre.productscomparator.url.analisis.controllers;
+package com.products.compare.url.analisis.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.mercadolibre.productscomparator.url.analisis.models.ItemDetails;
-import com.mercadolibre.productscomparator.url.analisis.services.AnalisisUrlService;
+import com.products.compare.url.analisis.models.ItemDetails;
+import com.products.compare.url.analisis.services.AnalisisUrlService;
 
 
 /**
@@ -40,6 +40,7 @@ public class AnalisisUrlController {
 		}
 	
 	 @Autowired
+	 //@Qualifier("analsisUrlCompletableFuture")
 	 private AnalisisUrlService analisisUrlServiceient;
 
 	

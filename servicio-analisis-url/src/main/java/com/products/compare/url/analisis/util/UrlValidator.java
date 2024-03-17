@@ -1,4 +1,4 @@
-package com.mercadolibre.productscomparator.url.analisis.util;
+package com.products.compare.url.analisis.util;
 
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.web.client.HttpClientErrorException;

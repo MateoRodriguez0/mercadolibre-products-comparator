@@ -1,4 +1,4 @@
-package com.mercadolibre.productscomparator.url.analisis;
+package com.products.compare.url.analisis;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

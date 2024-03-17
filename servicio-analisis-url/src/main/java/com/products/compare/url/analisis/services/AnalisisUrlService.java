@@ -1,6 +1,6 @@
-package com.mercadolibre.productscomparator.url.analisis.services;
+package com.products.compare.url.analisis.services;
 
-import com.mercadolibre.productscomparator.url.analisis.models.ItemDetails;
+import com.products.compare.url.analisis.models.ItemDetails;
 
 public interface AnalisisUrlService {
 

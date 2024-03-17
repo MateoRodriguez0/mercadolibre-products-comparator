@@ -1,4 +1,4 @@
-package com.mercadolibre.productscomparator.url.analisis.clients;
+package com.products.compare.url.analisis.clients;
 
 import java.util.List;
 import java.util.stream.Collectors;
