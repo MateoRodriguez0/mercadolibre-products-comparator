@@ -6,6 +6,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.StructuredTaskScope;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,7 +56,7 @@ public class AnalisisUrlServiceImpl implements AnalisisUrlService {
 								return new ItemDetails(code.replace("-",""),null);
 							}
 							else {
-								return new ItemDetails(null, code);
+								return new ItemDetails(null, code.replace("#", ""));
 							}
 						} catch (InterruptedException | ExecutionException e) {
 							return null;
@@ -103,29 +105,21 @@ public class AnalisisUrlServiceImpl implements AnalisisUrlService {
 	}
 	
 	 private String searchCodeForPais(String url, String site) {
-		 StringBuilder codigo=new StringBuilder();
-		 int initcode = url.contains("p/" + site) ? url.indexOf("p/" + site) + 2 : url.contains(site+"-")? url.indexOf(site): 0;
-		 if(initcode==0) {
-			 throw new RuntimeException("No se encontro ningun codigo de pais en la url");
-		 }
-		 else{
-			 if(url.contains(site+"-")) {
-					codigo.append(site+"-");
-				}
-				// Validar que el codigo sea de un prodcuto de catalogo 
-			 if(url.contains("p/"+site)){
-				 codigo.append(site);
-				}
-			}
-		 for (char c : url.substring(initcode+codigo.length()).toCharArray()) {
-			 if (Character.isDigit(c)) {
-				 codigo.append(c);
-				 }
-			 else {
-				break;
-				}
+		 
+		 Pattern patternItem = Pattern.compile("("+site+"\\-[0-9]+)-");
+		 Matcher matcherItem = patternItem.matcher(url);
+
+		 if (matcherItem.find()) {
+			   return matcherItem.group();
 			 }
-		 return codigo.toString();   
+		 Pattern patternPro = Pattern.compile("("+site+"[0-9]+)#");
+		 Matcher matcherPro = patternPro.matcher(url);
+		 if(matcherPro.find()) {
+			   return matcherPro.group();
+			 
+		 }
+		 throw new RuntimeException("No se encontro ningun codigo de pais en la url");
+		 
 	}
 	
 	/**
