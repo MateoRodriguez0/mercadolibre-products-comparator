@@ -1,4 +1,4 @@
-package com.mercadolibre.productscomparator.eurekaserver;
+package com.products.compare.eurekaserver;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
