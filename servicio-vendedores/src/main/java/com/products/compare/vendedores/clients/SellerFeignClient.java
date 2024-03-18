@@ -23,7 +23,7 @@ public interface SellerFeignClient {
 	public  ResponseEntity<ObjectNode>  getInfoByStateId(@PathVariable(name = "state") String state);
 	
 	@GetMapping(value = "/questions/search")
-	public  ResponseEntity<ObjectNode>  getTimeOfResponse(@RequestParam(name = "item")String itemId,
+	public  ResponseEntity<ObjectNode>  getQuestionsByItem(@RequestParam(name = "item")String itemId,
 			@RequestParam(name = "api_version")String api_version,@RequestParam(name = "offset",defaultValue = "0")int offset);
 	
 	

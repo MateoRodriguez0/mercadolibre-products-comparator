@@ -21,11 +21,12 @@ public class ResponseTimeServicesImpl implements ResponseTimeServices {
 	private int offset=0;
 	
 	@Override
-	public String timeOfResponseBySeller(String itemId,ObjectNode questions2) {
+	public String timeOfResponseBySeller(String itemId) {
 		offset=0;
 		int totalResponses=0;
 		int time=0;
-		questions= questions2;
+		questions= sellerClients.getQuestionsByItem(itemId, api_version,0)
+				.getBody();
 		int limit=questions.get("limit").asInt();
 		int totalQuestions=questions.get("total").asInt();
 		
@@ -42,7 +43,7 @@ public class ResponseTimeServicesImpl implements ResponseTimeServices {
 				
 				if(totalQuestions>offset && totalQuestions <(offset+limit)) {
 					subtask2=scope.fork(()->
-					sellerClients.getTimeOfResponse(itemId, api_version,offset).getBody());
+					sellerClients.getQuestionsByItem(itemId, api_version,offset).getBody());
 				}
 				scope.join();
 				totalResponses+=subtask.get()[0];

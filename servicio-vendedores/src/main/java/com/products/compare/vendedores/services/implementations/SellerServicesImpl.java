@@ -39,9 +39,10 @@ public class SellerServicesImpl implements SellerServices {
 		Seller seller= new Seller();
 		 
 		try(var scope= new StructuredTaskScope<>()){
+			Subtask<String> time=scope.fork(() ->responseTime
+					.timeOfResponseBySeller(itemId));
 			Subtask<ObjectNode> taskApi1=scope.fork(()->sellerClients.userById(id).getBody());
-			Subtask<ObjectNode> taskApi2= scope.fork(()->
-					sellerClients.getTimeOfResponse(itemId, api_version,0).getBody());
+		
 			
 			scope.join();
 			ObjectNode sellerJson=taskApi1.get();
@@ -50,15 +51,14 @@ public class SellerServicesImpl implements SellerServices {
 					.salesBysellers(sellerJson.get("site_id").asText(),id)
 					.getBody();
 					
-			Subtask<String> time=scope.fork(() ->responseTime.timeOfResponseBySeller(itemId,taskApi2.get()));
-			Subtask<String> location=scope.fork(() ->setLocation(sellerJson));
+			//Subtask<String> location=scope.fork(() ->setLocation(sellerJson));
 			
 			scope.fork(() -> {
 				setInfo(SalesForsellerJson,seller);
 				return null;
 			});
 			scope.join();
-			seller.setLocation(location.get());
+			//seller.setLocation(location.get());
 			seller.setResponse_time(time.get());
 		} catch (InterruptedException e) {
 			e.printStackTrace();
