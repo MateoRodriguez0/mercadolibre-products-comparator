@@ -13,8 +13,8 @@ The security in this application is configured with spring security with HTTP Ba
 spring:
   security:
     user:
-      name: Productcomparatorserviceconfig
-      password: client12345
+      name: config
+      password: config
 ````
 
 
