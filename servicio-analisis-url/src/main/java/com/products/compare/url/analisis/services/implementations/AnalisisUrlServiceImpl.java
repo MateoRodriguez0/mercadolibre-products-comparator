@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
@@ -37,13 +38,16 @@ public class AnalisisUrlServiceImpl implements AnalisisUrlService {
 		return false;
 	}
 
+	 
+	 @Value("${compare.products.regex-url}")
+	 private String regex;
 
 	@Override
 	public ItemDetails CreateDetailsUrl(String url) {
 		try {
 			ExecutorService service= Executors.newVirtualThreadPerTaskExecutor();
 			CompletableFuture<Boolean> valida=CompletableFuture
-					.supplyAsync(() -> UrlValidator.resourceFound(url),service);
+					.supplyAsync(() -> new UrlValidator().resourceFound(url,regex),service);
 			
 			CompletableFuture<List<String>> paises=CompletableFuture
 					.supplyAsync(this::getPaises,service);
@@ -52,6 +56,7 @@ public class AnalisisUrlServiceImpl implements AnalisisUrlService {
 					.supplyAsync(() ->{
 						try {
 							String code = serchCodeForUrl(url,paises.get());
+							
 							if(code.contains("-")) {
 								return new ItemDetails(code.replace("-",""),null);
 							}
@@ -62,6 +67,7 @@ public class AnalisisUrlServiceImpl implements AnalisisUrlService {
 							return null;
 						}}
 					,service);
+			
 			while(valida.isDone()|| !paises.isDone()) {
 				if(valida.get()){
 					return taskItemDetails.get();
@@ -112,10 +118,10 @@ public class AnalisisUrlServiceImpl implements AnalisisUrlService {
 		 if (matcherItem.find()) {
 			   return matcherItem.group();
 			 }
-		 Pattern patternPro = Pattern.compile("("+site+"[0-9]+)#");
+		 Pattern patternPro = Pattern.compile("(p\\/"+site+"[0-9]+)");
 		 Matcher matcherPro = patternPro.matcher(url);
 		 if(matcherPro.find()) {
-			   return matcherPro.group();
+			   return matcherPro.group().replace("p/", "");
 			 
 		 }
 		 throw new RuntimeException("No se encontro ningun codigo de pais en la url");
