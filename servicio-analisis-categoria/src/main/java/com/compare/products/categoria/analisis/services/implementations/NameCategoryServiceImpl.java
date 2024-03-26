@@ -14,7 +14,8 @@ public class NameCategoryServiceImpl implements NameCategoryService{
 		boolean isProduct=true;
 		for (JsonNode jsonNode : Categories) {
 			if(jsonNode.get("id").asText().endsWith(serviceEndCode) ||
-					jsonNode.get("id").asText().endsWith(vehicleEndCode)) {
+					jsonNode.get("id").asText().endsWith(vehicleEndCode) ||
+						jsonNode.get("id").asText().endsWith(propertyEndCode)) {
 				isProduct=false;
 			}
 				
@@ -46,12 +47,26 @@ public class NameCategoryServiceImpl implements NameCategoryService{
 	}
 	
 	
+	@Override
+	public Boolean isProperty(JsonNode Categories) throws Exception {
+		for (JsonNode jsonNode : Categories) {
+			if(jsonNode.get("id").asText().endsWith(propertyEndCode)) {
+				return true;
+			}
+		}
+		throw new Exception("La categoria no pertenece a inmuebles");
+	}
+	
+	
 	
 	@Value("${categories.end-code.service}")
 	private String serviceEndCode;
 	
 	@Value("${categories.end-code.vehicle}")
 	private String vehicleEndCode;
-	
+
+	@Value("${categories.end-code.property}")
+	private String propertyEndCode;
+
 
 }

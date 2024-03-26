@@ -38,7 +38,7 @@ public class CategoryServicesImpl implements CategoryService {
 		try(var scope= new  StructuredTaskScope.ShutdownOnSuccess<>()){
 			JsonNode fatherCategories= findCategorybyId(id);
 			
-			Subtask<Boolean> isproduct=scope.fork(() -> nameCategoryService
+			Subtask<Boolean> isProduct=scope.fork(() -> nameCategoryService
 					.isProduct(fatherCategories));
 			
 			Subtask<Boolean> isService=scope.fork(() -> nameCategoryService
@@ -47,10 +47,15 @@ public class CategoryServicesImpl implements CategoryService {
 			Subtask<Boolean> isVehicle=scope.fork(() -> nameCategoryService
 					.isVehicle(fatherCategories));
 			
+			Subtask<Boolean> isProperty=scope.fork(() -> nameCategoryService
+					.isProperty(fatherCategories));
 			scope.join();
 			
-			if(isproduct.state()==State.SUCCESS) {
+			if(isProduct.state()==State.SUCCESS) {
 				return DetailsCategory.builder().in_products(true).build();
+			}
+			if(isProperty.state()==State.SUCCESS) {
+				return DetailsCategory.builder().in_properties(true).build();
 			}
 			else if(isService.state()==State.SUCCESS) {
 				return DetailsCategory.builder().in_services(true).build();

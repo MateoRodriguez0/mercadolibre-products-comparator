@@ -14,6 +14,6 @@ public class DetailsCategory {
 	private boolean in_products;
 	private boolean in_services;
 	private boolean in_vehicles;
-	
+	private boolean in_properties;
 	
 }
