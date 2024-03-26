@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 9876
   
 spring:
   cloud:
@@ -33,3 +33,10 @@ resilience4j:
         timeoutDuration: 5s
         
 #----------------------------------------------------------------------
+
+compare:
+  products:
+    regex-url: "^https://([a-z0-9-]{2,})[\\.](mercadolibre|mercadolivre)(\\.com\\.)([a-z]{2,})[\\/]((M[A-Z]{2}-[0-9]+)|([a-zA-Z0-9-]+[\\/]p[\\/]M[A-Z]{2}+[0-9]+)).*$"
+    
+    
+    
