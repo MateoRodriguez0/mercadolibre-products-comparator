@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: servicio-productos-info-comercial
+    
+server:
+  port: 9091
