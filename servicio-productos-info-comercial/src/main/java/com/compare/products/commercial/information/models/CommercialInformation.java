@@ -1,7 +1,5 @@
 package com.compare.products.commercial.information.models;
 
-import java.util.List;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,7 +19,7 @@ public class CommercialInformation {
 	private Shipping shipping;
 	private Warranty warranty;
 	private String international_delivery_mode;
-	private List<String> payment_methods;
+	private String payment_methods;
 
 	
 	
