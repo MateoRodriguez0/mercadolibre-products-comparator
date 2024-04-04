@@ -1,5 +1,11 @@
 package com.compare.products.commercial.information.services.implementations;
 
+
+
+import java.io.IOException;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.RequestEntity;
@@ -15,6 +21,7 @@ import com.compare.products.commercial.information.services.InformationCommercia
 import com.compare.products.commercial.information.services.PaymentMethodsService;
 import com.compare.products.commercial.information.services.ShippingService;
 import com.fasterxml.jackson.databind.JsonNode;
+
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -33,11 +40,43 @@ public class InformationProductCatalog implements InformationCommercialService {
 		information.setPayment_methods(paymentMethodsService.findPaymentMethods());
 		information.setCurrency_id(jsonNode.at(currency).asText());
 		information.setRating_average(getRatingAverage(jsonNode.at(itemId).asText()));
-		information.setDiscount(getDiscount(jsonNode));
+		information.setDiscount_porcentage(getDiscount(jsonNode));
 		information.setWarranty(getWarranty(jsonNode));
 		information.setShipping(getShipping(jsonNode));
 		information.setPrice(jsonNode.at(ProductPrice).asDouble());
 		information.setInternational_delivery_mode(jsonNode.at(international).asText());
+		if(information.getShipping().getCosts()!=null) {
+			information.getShipping().setCurrency(jsonNode.at(currency).asText());
+		}
+
+		Document document =null;
+		try {
+			document = Jsoup.connect(jsonNode.get("permalink").asText()).get();
+		} catch (IOException e) {
+			
+		}
+		try {
+			String sales=document.getElementsByClass("ui-pdp-subtitle").text().replaceAll("[a-zA-Z]|\s|\\|","");
+			information.setTotal_sales(sales.length()!=0 ? sales : null);
+		} catch ( NumberFormatException e) {
+			
+		}
+		try {
+			information.setAvailables(Integer.parseInt(document.getElementsByClass("ui-pdp-buybox__quantity__available").text().replaceAll("[a-zA-Z]|\s|[(]|[)]","")));
+			
+		} catch (NumberFormatException e) {
+			
+		}
+		
+		
+		if(information.getRating_average()==0&& jsonNode.get("parent_id")!=null) {
+			try {
+				document = Jsoup.connect("https://www.mercadolibre.com.co/noindex/catalog/reviews/"+jsonNode.get("parent_id").asText()+"?noIndex=true&access=view_all&modal=true&controlled=true").get();
+				information.setRating_average(Double.parseDouble(document.getElementsByClass("ui-review-capability__rating__average ui-review-capability__rating__average--desktop").text()));
+			} catch (IOException | NumberFormatException e) {
+				e.printStackTrace();
+				}
+		}
 		
 		for (JsonNode atr : jsonNode.get(attributes)) {
 			if(atr.get("id").asText().equals(brandId)) {
@@ -45,10 +84,10 @@ public class InformationProductCatalog implements InformationCommercialService {
 				break;
 			}
 		}
+		
 		return information;
 	
 	}
-	
 	
 	
 	@Override
@@ -59,7 +98,6 @@ public class InformationProductCatalog implements InformationCommercialService {
 			return (int)(((orignalPrice-currentPrice)/orignalPrice)*100);
 		}
 		return 0;
-		
 		
 	}
 	
@@ -91,7 +129,7 @@ public class InformationProductCatalog implements InformationCommercialService {
 				.header("Authorization", request.getHeader("Authorization"))
 				.build();
 		ResponseEntity<JsonNode> response=clientHttp.exchange(entity, JsonNode.class);
-		System.out.println(response);
+		
 		return response.getBody().get(rating).asDouble();
 	}
 	
@@ -154,6 +192,7 @@ public class InformationProductCatalog implements InformationCommercialService {
 	
 	@Autowired
 	private RestTemplate clientHttp;
+
 
 	
 

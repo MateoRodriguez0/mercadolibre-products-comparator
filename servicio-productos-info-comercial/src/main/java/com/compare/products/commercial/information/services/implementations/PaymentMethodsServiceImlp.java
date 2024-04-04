@@ -13,13 +13,15 @@ import org.springframework.web.client.RestTemplate;
 import com.compare.products.commercial.information.services.PaymentMethodsService;
 import com.fasterxml.jackson.databind.JsonNode;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 @Service
 @Primary
 public class PaymentMethodsServiceImlp implements PaymentMethodsService {
 
 	@Override
-	public String findPaymentMethods(String token) {
-		JsonNode node= getPaymentMethods(token).getBody();
+	public String findPaymentMethods() {
+		JsonNode node= getPaymentMethods(request.getHeader("Authorization")).getBody();
 		StringBuilder builder=new StringBuilder();
 		for (JsonNode jsonNode : node) {
 			if(jsonNode.get(PaymentMethodStatus).asText().equals(statusActive)) {
@@ -53,4 +55,7 @@ public class PaymentMethodsServiceImlp implements PaymentMethodsService {
 
 	@Value("${json.properties.payment-methods.option-active}")
 	private String statusActive;
+	
+	@Autowired
+	private HttpServletRequest request;
 }

@@ -1,5 +1,10 @@
 package com.compare.products.commercial.information.services.implementations;
 
+
+import java.io.IOException;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.RequestEntity;
@@ -26,11 +31,34 @@ public class InformationItem implements InformationCommercialService {
 		CommercialInformation information = new CommercialInformation();
 		information.setRating_average(getRatingAverage(jsonNode.get(itemId).asText()));
 		information.setPayment_methods(paymentMethodsService.findPaymentMethods());
-		information.setDiscount(getDiscount(jsonNode));
+		information.setDiscount_porcentage(getDiscount(jsonNode));
 		information.setPrice(jsonNode.get(ItemPrice).asDouble());
 		information.setWarranty(getWarranty(jsonNode));
 		information.setCurrency_id(jsonNode.get(currency).asText());
 		information.setShipping(getShipping(jsonNode));
+		if(information.getShipping().getCosts()!=null) {
+			information.getShipping().setCurrency(jsonNode.get(currency).asText());
+		}
+		
+		Document document =null;
+		try {
+			document = Jsoup.connect(jsonNode.get("permalink").asText()).get();
+		} catch (IOException e) {
+			
+		}
+		try {
+			String sales=document.getElementsByClass("ui-pdp-subtitle").text().replaceAll("[a-zA-Z]|\s|\\|","");
+			information.setTotal_sales(sales.length()!=0 ? sales : null);
+		} catch ( NumberFormatException e) {
+			
+		}
+		try {
+			information.setAvailables(Integer.parseInt(document.getElementsByClass("ui-pdp-buybox__quantity__available").text().replaceAll("[a-zA-Z]|\s|[(]|[)]","")));
+			
+		} catch (NumberFormatException e) {
+			
+		}
+		
 		
 		for (JsonNode atr : jsonNode.get(attributes)) {
 			if(atr.get("id").asText().equals(brandId)) {

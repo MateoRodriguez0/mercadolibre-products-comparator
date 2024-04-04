@@ -58,8 +58,10 @@ public class ShippingService {
 						.build();
 				try {
 					ResponseEntity<JsonNode> response=clientHttp.exchange(entity, JsonNode.class);
-					costs.add(new ShippingCost(response.getBody().at("/destination/city/name").asText()+", "+response.getBody().at("/destination/country/name").asText(),
-							response.getBody().get("options").get(0).get("cost").asDouble()));
+					JsonNode shipping= response.getBody();
+					costs.add(new ShippingCost(shipping.at("/destination/city/name").asText()+", "+shipping.at("/destination/country/name").asText(),
+							shipping.get("options").get(0).get("cost").asDouble(),shipping.get("options").get(0).at("/estimated_delivery_time/date").asText(),
+							shipping.get("options").get(0).at("/estimated_delivery_time/offset/date").asText()));
 				}catch(HttpClientErrorException.NotFound error) {}	
 			}
 			if(costs.size()!=0) {

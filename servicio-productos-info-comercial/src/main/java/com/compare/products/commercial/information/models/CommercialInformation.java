@@ -8,35 +8,18 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CommercialInformation {
-
 	
 	private String brand;
 	private double price;
+	private int discount_porcentage;
 	private String currency_id;
-	private boolean available;
-	private int discount;
+	private String total_sales;
+	private int availables;
 	private double rating_average;
-	private Shipping shipping;
-	private Warranty warranty;
 	private String international_delivery_mode;
 	private String payment_methods;
-
-	
-	
-	@Data
-	private class Warranty{
-		private double number;
-        private String unit;
-	}
-	
-	
-	@Data
-	private class Shipping{
-		private ShippingMode mode;
-        private double cost;
-	}
-	
-	
+	private Warranty warranty;
+	private Shipping shipping;
 	
 	
 }
