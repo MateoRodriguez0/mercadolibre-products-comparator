@@ -42,23 +42,27 @@ public class InformationItem implements InformationCommercialService {
 		
 		Document document =null;
 		try {
-			document = Jsoup.connect(jsonNode.get("permalink").asText()).get();
+			document = Jsoup.connect(jsonNode.at(permalink).asText()).get();
 		} catch (IOException e) {
 			
 		}
 		try {
-			String sales=document.getElementsByClass("ui-pdp-subtitle").text().replaceAll("[a-zA-Z]|\s|\\|","");
+			String sales=document.getElementsByClass(salesTag)
+					.text()
+					.replaceAll("[a-zA-Z]|\s|\\|","");
 			information.setTotal_sales(sales.length()!=0 ? sales : null);
 		} catch ( NumberFormatException e) {
 			
 		}
 		try {
-			information.setAvailables(Integer.parseInt(document.getElementsByClass("ui-pdp-buybox__quantity__available").text().replaceAll("[a-zA-Z]|\s|[(]|[)]","")));
+			String available=document.getElementsByClass(availableTag)
+					.text()
+					.replaceAll("[a-zA-Z]|\s|[(]|[)]","");
+			information.setAvailables(available.length()!=0 ? available : null);
 			
 		} catch (NumberFormatException e) {
 			
 		}
-		
 		
 		for (JsonNode atr : jsonNode.get(attributes)) {
 			if(atr.get("id").asText().equals(brandId)) {
@@ -66,7 +70,6 @@ public class InformationItem implements InformationCommercialService {
 				break;
 			}
 		}
-		
 		return information;
 	}
 	
@@ -89,14 +92,10 @@ public class InformationItem implements InformationCommercialService {
 		if(jsonNode.at(freshipping).asBoolean()) {
 			return Shipping.builder().mode(ShippingMode.free).build();
 		}
-		
-		return shippingService.getShippingItem(jsonNode.get(itemId).asText());
-		
+		return shippingService.getShippingItem(jsonNode.get(itemId).asText());	
 	}
 
-	
 
-	
 	@Override
 	public int getDiscount(JsonNode jsonNode) {
 		int orignalPrice=jsonNode.get(ItemPriceOriginal).asInt();
@@ -105,8 +104,7 @@ public class InformationItem implements InformationCommercialService {
 			return (int)(((double)(orignalPrice-currentPrice)/orignalPrice)*100);
 		}
 		return 0;
-		
-		
+			
 	}
 	
 	
@@ -116,24 +114,30 @@ public class InformationItem implements InformationCommercialService {
 				.header("Authorization", request.getHeader("Authorization"))
 				.build();
 		ResponseEntity<JsonNode> response=clientHttp.exchange(entity, JsonNode.class);
-		return response.getBody().get(rating).asDouble();
+		return response.getBody().at(rating).asDouble();
 	}
 	
 	
-	@Autowired
-	private HttpServletRequest request;
-
 	@Autowired
 	private ShippingService shippingService;
 	
 	@Value("${compare.products.paths.rating-for-item}")
 	private String ratingUrl;
 	
+	@Value("${compare.products.paths.scraper.reviews}")
+	private String reviewsUrl;
+	
 	@Value("${json.properties.item.free-shipping}")
 	private String freshipping;
 	
-	@Autowired
-	private PaymentMethodsService paymentMethodsService;
+	@Value("${compare.products.scraper.tags.quantity-available}")
+	private String availableTag;
+	
+	@Value("${compare.products.scraper.tags.review-calification}")
+	private String calificationTag;
+	
+	@Value("${compare.products.scraper.tags.sales}")
+	private String salesTag;
 
 	@Value("${json.properties.item.price}")
 	private String ItemPrice;
@@ -144,7 +148,7 @@ public class InformationItem implements InformationCommercialService {
 	@Value("${json.properties.item.id}")
 	private String itemId;
 	
-	@Value("${json.properties.rating}")
+	@Value("${json.properties.reviews-item.rating}")
 	private String rating;
 	
 	@Value("${json.properties.item.curency_id}")
@@ -170,11 +174,17 @@ public class InformationItem implements InformationCommercialService {
 	@Value("${json.properties.item.warranty-number}")
 	private String warrantyNumber;
 	
+	@Value("${json.properties.item.permalink}")
+	private String permalink;
 	
 	@Autowired
 	private RestTemplate clientHttp;
 
+	@Autowired
+	private PaymentMethodsService paymentMethodsService;
 	
+	@Autowired
+	private HttpServletRequest request;
 
 
 	

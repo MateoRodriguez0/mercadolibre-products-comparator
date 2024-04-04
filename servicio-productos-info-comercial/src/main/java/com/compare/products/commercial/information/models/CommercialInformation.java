@@ -14,7 +14,7 @@ public class CommercialInformation {
 	private int discount_porcentage;
 	private String currency_id;
 	private String total_sales;
-	private int availables;
+	private String availables;
 	private double rating_average;
 	private String international_delivery_mode;
 	private String payment_methods;

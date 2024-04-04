@@ -27,10 +27,6 @@ import jakarta.servlet.http.HttpServletRequest;
 
 @Service
 public class InformationProductCatalog implements InformationCommercialService {
-
-
-	
-
 	
 	@Override
 	public CommercialInformation getInfoCommercial(JsonNode jsonNode) {
@@ -51,27 +47,32 @@ public class InformationProductCatalog implements InformationCommercialService {
 
 		Document document =null;
 		try {
-			document = Jsoup.connect(jsonNode.get("permalink").asText()).get();
+			document = Jsoup.connect(jsonNode.at(permalink).asText()).get();
 		} catch (IOException e) {
 			
 		}
 		try {
-			String sales=document.getElementsByClass("ui-pdp-subtitle").text().replaceAll("[a-zA-Z]|\s|\\|","");
+			String sales=document.getElementsByClass(salesTag)
+					.text()
+					.replaceAll("[a-zA-Z]|\s|\\|","");
 			information.setTotal_sales(sales.length()!=0 ? sales : null);
 		} catch ( NumberFormatException e) {
 			
 		}
 		try {
-			information.setAvailables(Integer.parseInt(document.getElementsByClass("ui-pdp-buybox__quantity__available").text().replaceAll("[a-zA-Z]|\s|[(]|[)]","")));
-			
+			String available=document.getElementsByClass(availableTag)
+					.text()
+					.replaceAll("[a-zA-Z]|\s|[(]|[)]","");
+			information.setAvailables(available.length()!=0 ? available : null);
 		} catch (NumberFormatException e) {
 			
 		}
 		
-		
-		if(information.getRating_average()==0&& jsonNode.get("parent_id")!=null) {
+		if(information.getRating_average()==0&& jsonNode.at(parentId)!=null) {
 			try {
-				document = Jsoup.connect("https://www.mercadolibre.com.co/noindex/catalog/reviews/"+jsonNode.get("parent_id").asText()+"?noIndex=true&access=view_all&modal=true&controlled=true").get();
+				document = Jsoup.connect(reviewsUrl.replace("{parent_id}",
+						jsonNode.at(parentId).asText()))
+						.get();
 				information.setRating_average(Double.parseDouble(document.getElementsByClass("ui-review-capability__rating__average ui-review-capability__rating__average--desktop").text()));
 			} catch (IOException | NumberFormatException e) {
 				e.printStackTrace();
@@ -97,8 +98,7 @@ public class InformationProductCatalog implements InformationCommercialService {
 		if(orignalPrice!=0) {
 			return (int)(((orignalPrice-currentPrice)/orignalPrice)*100);
 		}
-		return 0;
-		
+		return 0;		
 	}
 	
 	@Override
@@ -130,23 +130,25 @@ public class InformationProductCatalog implements InformationCommercialService {
 				.build();
 		ResponseEntity<JsonNode> response=clientHttp.exchange(entity, JsonNode.class);
 		
-		return response.getBody().get(rating).asDouble();
+		return response.getBody().at(rating).asDouble();
 	}
 	
-	
 
-	@Autowired
-	private ShippingService shippingService;
+	@Value("${compare.products.scraper.tags.quantity-available}")
+	private String availableTag;
 	
-	@Autowired
-	private HttpServletRequest request;
-
+	@Value("${compare.products.scraper.tags.review-calification}")
+	private String calificationTag;
+	
+	@Value("${compare.products.scraper.tags.sales}")
+	private String salesTag;
+	
 	@Value("${compare.products.paths.rating-for-item}")
 	private String ratingUrl;
 	
-	@Autowired
-	private PaymentMethodsService paymentMethodsService;
-
+	@Value("${compare.products.paths.scraper.reviews}")
+	private String reviewsUrl;
+	
 	@Value("${json.properties.product_catalog.price}")
 	private String ProductPrice;
 	
@@ -155,8 +157,11 @@ public class InformationProductCatalog implements InformationCommercialService {
 
 	@Value("${json.properties.product_catalog.id}")
 	private String itemId;
+	
+	@Value("${json.properties.product_catalog.parent}")
+	private String parentId;
 
-	@Value("${json.properties.rating}")
+	@Value("${json.properties.reviews-item.rating}")
 	private String rating;
 
 	@Value("${json.properties.product_catalog.curency_id}")
@@ -164,6 +169,9 @@ public class InformationProductCatalog implements InformationCommercialService {
 	
 	@Value("${json.properties.product_catalog.warranty}")
 	private String saleTerms;
+
+	@Value("${json.properties.product_catalog.permalink}")
+	private String permalink;
 	
 	@Value("${json.properties.product_catalog.name-terminos-venta}")
 	private String saleTermsNameWarranty;
@@ -189,14 +197,15 @@ public class InformationProductCatalog implements InformationCommercialService {
 	@Value("${json.properties.product_catalog.brand_name}")
 	private String brandName;
 	
-	
 	@Autowired
 	private RestTemplate clientHttp;
 
+	@Autowired
+	private PaymentMethodsService paymentMethodsService;
 
+	@Autowired
+	private ShippingService shippingService;
 	
-
-
-
-
+	@Autowired
+	private HttpServletRequest request;
 }

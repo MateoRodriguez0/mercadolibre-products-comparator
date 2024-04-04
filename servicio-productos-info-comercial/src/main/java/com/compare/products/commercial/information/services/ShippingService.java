@@ -29,8 +29,8 @@ public class ShippingService {
 				.header("Authorization", request.getHeader("Authorization")).build();
 		ResponseEntity<JsonNode> response=clientHttp.exchange(entity, JsonNode.class);
 		
-		for (JsonNode node : response.getBody().get("channels")) {
-			if(node.get("free_shipping").asBoolean()==true)
+		for (JsonNode node : response.getBody().at(channels)) {
+			if(node.at(freeShiping).asBoolean()==true)
 				return Shipping.builder().mode(ShippingMode.free)
 						.build();
 		}
@@ -48,6 +48,7 @@ public class ShippingService {
 	private List<ShippingCost> getShippingCost(String id) {
 		Set<String> cities= getAddressesByUser();
 		List<ShippingCost> costs=null;
+		
 		if(cities!=null) {
 			costs= new ArrayList<>();
 			for (String city : cities) {
@@ -59,9 +60,12 @@ public class ShippingService {
 				try {
 					ResponseEntity<JsonNode> response=clientHttp.exchange(entity, JsonNode.class);
 					JsonNode shipping= response.getBody();
-					costs.add(new ShippingCost(shipping.at("/destination/city/name").asText()+", "+shipping.at("/destination/country/name").asText(),
-							shipping.get("options").get(0).get("cost").asDouble(),shipping.get("options").get(0).at("/estimated_delivery_time/date").asText(),
-							shipping.get("options").get(0).at("/estimated_delivery_time/offset/date").asText()));
+					
+					costs.add(new ShippingCost(shipping.at(cityName).asText()+", "+
+							shipping.at(countryName).asText(),
+							shipping.at(options).get(0).at(cost).asDouble(),
+							shipping.at(options).get(0).at(maxTime).asText(),
+							shipping.at(options).get(0).at(minTime).asText()));
 				}catch(HttpClientErrorException.NotFound error) {}	
 			}
 			if(costs.size()!=0) {
@@ -80,7 +84,7 @@ public class ShippingService {
 		if(response.getStatusCode().value()==200) {
 			Set<String> citys=new HashSet<>();
 			for (JsonNode adress : response.getBody()) {
-				citys.add(adress.at("/city/id").asText());
+				citys.add(adress.at(userCityId).asText());
 			}
 			return citys;
 		}
@@ -109,8 +113,38 @@ public class ShippingService {
 	@Value("${compare.products.paths.users-me}")
 	private String userMe;
 	
+	@Value("${json.properties.shipping-cost.costs}")
+	private String cost;
+	
+	@Value("${json.properties.shipping-cost.options}")
+	private String options;
+	
+	@Value("${json.properties.shipping-cost.city_name}")
+	private String cityName;
+	
+	@Value("${json.properties.shipping-cost.country_name}")
+	private String countryName;
+	
+	@Value("${json.properties.shipping-cost.time_min}")
+	private String shippingCityId;
+	
 	@Value("${compare.products.paths.adresses}")
 	private String adreeses;
+	
+	@Value("${json.properties.shipping-cost.time_min}")
+	private String maxTime;
+	
+	@Value("${json.properties.shipping-items.channels}")
+	private String channels;
+	
+	@Value("${json.properties.shipping-items.free_shipping}")
+	private String freeShiping;
+	
+	@Value("${json.properties.shipping-cost.time_min}")
+	private String minTime;
+	
+	@Value("${json.properties.adresses.city-id}")
+	private String userCityId;
 	
 	@Autowired
 	private HttpServletRequest request;
