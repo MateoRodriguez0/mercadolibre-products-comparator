@@ -4,9 +4,13 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.StructuredTaskScope;
+
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Scope;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -18,49 +22,45 @@ import com.compare.products.commercial.information.models.ShippingCost;
 import com.compare.products.commercial.information.models.ShippingMode;
 import com.fasterxml.jackson.databind.JsonNode;
 
-import jakarta.servlet.http.HttpServletRequest;
-
 @Service
+@Scope("prototype")
 public class ShippingService {
 
-	
-	public Shipping getShippingItem(String id) {
-		RequestEntity<?> entity= RequestEntity.get(shippingUrl.replace("{id}", id))
-				.header("Authorization", request.getHeader("Authorization")).build();
-		ResponseEntity<JsonNode> response=clientHttp.exchange(entity, JsonNode.class);
-		
-		for (JsonNode node : response.getBody().at(channels)) {
-			if(node.at(freeShiping).asBoolean()==true)
-				return Shipping.builder().mode(ShippingMode.free)
-						.build();
+	public Shipping getShippingItem(String id,String token){
+		try(var scope=new StructuredTaskScope.ShutdownOnSuccess<Shipping>()){
+			scope.fork(() ->{
+				for (JsonNode node : getShippingMethods(id, token).at(channels)) {
+					if(node.at(freeShiping).asBoolean())
+						return Shipping.builder().mode(ShippingMode.free)
+								.build();
+				}
+				throw new RuntimeException("El envio no es gratis");
+			});
+			scope.fork(() ->{
+				List<ShippingCost> costs= getShippingCost(id,token);
+				if(costs!= null) {
+					return Shipping.builder().mode(ShippingMode.pay)
+							.costs(costs).build();
+				}
+				return null;
+			});
+			scope.join();
+			return scope.result();
+		} catch (ExecutionException | InterruptedException e) {
+			return null;
 		}
-		List<ShippingCost> costs= getShippingCost(id);
-		if(costs!= null) {
-			return Shipping.builder().mode(ShippingMode.pay)
-					.costs(costs).build();
-		}
-
-		return null;
-	
 	}
 	
 	
-	private List<ShippingCost> getShippingCost(String id) {
-		Set<String> cities= getAddressesByUser();
+	private List<ShippingCost> getShippingCost(String id,String token) {
+		Set<String> cities= getAddressesByUser(token);
 		List<ShippingCost> costs=null;
 		
 		if(cities!=null) {
 			costs= new ArrayList<>();
 			for (String city : cities) {
-				RequestEntity<?> entity= RequestEntity
-						.get(shippingCosts.replace("{id}", id)
-								.replace("{city}", city))
-						.header("Authorization",request.getHeader("Authorization") )
-						.build();
 				try {
-					ResponseEntity<JsonNode> response=clientHttp.exchange(entity, JsonNode.class);
-					JsonNode shipping= response.getBody();
-					
+					JsonNode shipping=getShippingCostByCity(id, city, token);
 					costs.add(new ShippingCost(shipping.at(cityName).asText()+", "+
 							shipping.at(countryName).asText(),
 							shipping.at(options).get(0).at(cost).asDouble(),
@@ -75,10 +75,24 @@ public class ShippingService {
 		return null;
 	}
 	
+	private JsonNode getShippingMethods(String id,String token){
+		RequestEntity<?> entity= RequestEntity.get(shippingUrl.replace("{id}", id))
+				.header("Authorization",token).build();
+		return clientHttp.exchange(entity, JsonNode.class).getBody();
+	}
 	
-	private Set<String> getAddressesByUser() {
-		RequestEntity<?> entity= RequestEntity.get(adreeses.replace("{id}",getIdByUserToken()))
-				.header("Authorization", request.getHeader("Authorization")).build();
+	private JsonNode getShippingCostByCity(String itemId,String cityId, String token){
+		RequestEntity<?> entity= RequestEntity.get(shippingCosts.replace("{id}", itemId)
+				.replace("{city}", cityId)).header("Authorization",token )
+				.build();
+	
+		return clientHttp.exchange(entity, JsonNode.class).getBody();
+	}
+	
+	
+	private Set<String> getAddressesByUser(String token) {
+		RequestEntity<?> entity= RequestEntity.get(adreeses.replace("{id}",getIdByUserToken(token)))
+				.header("Authorization", token).build();
 		ResponseEntity<JsonNode> response=clientHttp.exchange(entity, JsonNode.class);
 		
 		if(response.getStatusCode().value()==200) {
@@ -88,13 +102,13 @@ public class ShippingService {
 			}
 			return citys;
 		}
-		
 		return null;
 	}
 	
-	private String getIdByUserToken(){
+
+	private String getIdByUserToken(String token){
 		RequestEntity<?> entity= RequestEntity.get(userMe)
-				.header("Authorization", request.getHeader("Authorization")).build();
+				.header("Authorization",token).build();
 		ResponseEntity<JsonNode> response=clientHttp.exchange(entity, JsonNode.class);
 		
 		return response.getBody().get("id").asText();
@@ -146,7 +160,4 @@ public class ShippingService {
 	@Value("${json.properties.adresses.city-id}")
 	private String userCityId;
 	
-	@Autowired
-	private HttpServletRequest request;
-
 }
