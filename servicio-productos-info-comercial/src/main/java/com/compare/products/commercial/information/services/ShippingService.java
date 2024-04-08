@@ -4,9 +4,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.StructuredTaskScope;
-
+import java.util.concurrent.StructuredTaskScope.Subtask;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,7 +13,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import com.compare.products.commercial.information.models.Shipping;
@@ -27,26 +25,29 @@ import com.fasterxml.jackson.databind.JsonNode;
 public class ShippingService {
 
 	public Shipping getShippingItem(String id,String token){
-		try(var scope=new StructuredTaskScope.ShutdownOnSuccess<Shipping>()){
-			scope.fork(() ->{
+		try(var scope=new StructuredTaskScope<>()){
+			Subtask<Boolean> freeShipping=scope.fork(() ->{
 				for (JsonNode node : getShippingMethods(id, token).at(channels)) {
-					if(node.at(freeShiping).asBoolean())
-						return Shipping.builder().mode(ShippingMode.free)
-								.build();
+					if(node.at(freeShiping).asBoolean()) {
+						return true;
+					}
 				}
-				throw new RuntimeException("El envio no es gratis");
+				return false;	
 			});
-			scope.fork(() ->{
-				List<ShippingCost> costs= getShippingCost(id,token);
-				if(costs!= null) {
-					return Shipping.builder().mode(ShippingMode.pay)
-							.costs(costs).build();
-				}
-				return null;
+			Subtask<List<ShippingCost>> Costs=scope.fork(() ->{
+				return getShippingCost(id,token);
 			});
 			scope.join();
-			return scope.result();
-		} catch (ExecutionException | InterruptedException e) {
+			if(freeShipping.get()) {
+				return Shipping.builder().mode(ShippingMode.free)
+						.handling_costs(Costs.get())
+						.build();
+			}
+			return Shipping.builder().mode(ShippingMode.pay)
+					.handling_costs(Costs.get())
+					.build();
+		
+		} catch (Exception e) {
 			return null;
 		}
 	}
@@ -66,7 +67,7 @@ public class ShippingService {
 							shipping.at(options).get(0).at(cost).asDouble(),
 							shipping.at(options).get(0).at(maxTime).asText(),
 							shipping.at(options).get(0).at(minTime).asText()));
-				}catch(HttpClientErrorException.NotFound error) {}	
+				}catch(Exception error) {}	
 			}
 			if(costs.size()!=0) {
 				return costs;

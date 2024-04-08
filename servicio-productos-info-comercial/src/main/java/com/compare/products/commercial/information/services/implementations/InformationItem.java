@@ -13,12 +13,10 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import com.compare.products.commercial.information.models.CommercialInformation;
 import com.compare.products.commercial.information.models.Shipping;
-import com.compare.products.commercial.information.models.ShippingMode;
 import com.compare.products.commercial.information.models.Warranty;
 import com.compare.products.commercial.information.services.InformationCommercialService;
 import com.compare.products.commercial.information.services.PaymentMethodsService;
@@ -87,6 +85,7 @@ public class InformationItem implements InformationCommercialService {
 					information.getShipping().setCurrency(jsonNode.at(currency).asText());
 				}
 			} catch (InterruptedException | ExecutionException e) {
+				e.printStackTrace();
 			}
 		
 		return information;
@@ -110,9 +109,6 @@ public class InformationItem implements InformationCommercialService {
 
 	@Override
 	public Shipping getShipping(JsonNode jsonNode, String token) {
-		if(jsonNode.at(freshipping).asBoolean()) {
-			return Shipping.builder().mode(ShippingMode.free).build();
-		}
 		return shippingService.getShippingItem(jsonNode.get(itemId).asText(),token);	
 	}
 
@@ -136,7 +132,7 @@ public class InformationItem implements InformationCommercialService {
 		try {
 			ResponseEntity<JsonNode> response=clientHttp.exchange(entity, JsonNode.class);
 			return response.getBody().at(rating).asDouble();
-		}catch(HttpClientErrorException e) {
+		}catch(Exception e) {
 			return 0;
 		}
 	}

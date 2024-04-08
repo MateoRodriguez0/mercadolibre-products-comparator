@@ -11,7 +11,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import com.compare.products.commercial.information.services.PaymentMethodsService;
@@ -25,7 +24,6 @@ public class PaymentMethodsServiceImlp implements PaymentMethodsService {
 
 	@Override
 	public String findPaymentMethods(String token, String siteId) {
-	
 		try(var scope= new StructuredTaskScope<>()){
 			Subtask<Boolean> matchSiteId=scope.fork(() -> {
 				try {
@@ -61,12 +59,12 @@ public class PaymentMethodsServiceImlp implements PaymentMethodsService {
 				}
 			}
 			return builder.reverse().replace(0,2, "").reverse().toString();	
-		}catch(HttpClientErrorException e) {}
+		}catch(Exception e) {
+		}
 		return null;
 	}
 	
 
-	
 	
 	public ResponseEntity<JsonNode> getPaymentMethods(String token){
 		RequestEntity<?> request= RequestEntity.get(URI.create(PaymentMethodsApi))
