@@ -1,15 +1,19 @@
 package com.compare.products.commercial.information.services.implementations;
 
 
-import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Scope;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import com.compare.products.commercial.information.models.CommercialInformation;
@@ -18,61 +22,78 @@ import com.compare.products.commercial.information.models.ShippingMode;
 import com.compare.products.commercial.information.models.Warranty;
 import com.compare.products.commercial.information.services.InformationCommercialService;
 import com.compare.products.commercial.information.services.PaymentMethodsService;
+import com.compare.products.commercial.information.services.ScrapingService;
 import com.compare.products.commercial.information.services.ShippingService;
 import com.fasterxml.jackson.databind.JsonNode;
 
-import jakarta.servlet.http.HttpServletRequest;
-
 @Service
+@Scope("prototype")
 public class InformationItem implements InformationCommercialService {
 
 	@Override
-	public CommercialInformation getInfoCommercial(JsonNode jsonNode) {
-		CommercialInformation information = new CommercialInformation();
-		information.setRating_average(getRatingAverage(jsonNode.get(itemId).asText()));
-		information.setPayment_methods(paymentMethodsService.findPaymentMethods());
-		information.setDiscount_porcentage(getDiscount(jsonNode));
-		information.setPrice(jsonNode.get(ItemPrice).asDouble());
-		information.setWarranty(getWarranty(jsonNode));
-		information.setCurrency_id(jsonNode.get(currency).asText());
-		information.setShipping(getShipping(jsonNode));
-		if(information.getShipping().getCosts()!=null) {
-			information.getShipping().setCurrency(jsonNode.get(currency).asText());
-		}
+	public CommercialInformation getInfoCommercial(JsonNode jsonNode,String token) {
+			CommercialInformation information=new CommercialInformation();
+			ExecutorService service= Executors.newVirtualThreadPerTaskExecutor();
 		
-		Document document =null;
-		try {
-			document = Jsoup.connect(jsonNode.at(permalink).asText()).get();
-		} catch (IOException e) {
+			CompletableFuture<Document> taskPermalink=CompletableFuture.supplyAsync(() ->
+				scrapingService.getDocument(jsonNode.at(permalink).asText()),service);
+			CompletableFuture<String> taskAvailables=CompletableFuture.supplyAsync(() ->
+				scrapingService.getAvailables(taskPermalink),service);
+	
+			CompletableFuture<String> taskTotalSales=CompletableFuture.supplyAsync(() ->
+				scrapingService.getSales(taskPermalink),service);
 			
-		}
-		try {
-			String sales=document.getElementsByClass(salesTag)
-					.text()
-					.replaceAll("[a-zA-Z]|\s|\\|","");
-			information.setTotal_sales(sales.length()!=0 ? sales : null);
-		} catch ( NumberFormatException e) {
+			CompletableFuture<Shipping> taskShipping=CompletableFuture.supplyAsync(() ->
+				getShipping(jsonNode,token),service);
 			
-		}
-		try {
-			String available=document.getElementsByClass(availableTag)
-					.text()
-					.replaceAll("[a-zA-Z]|\s|[(]|[)]","");
-			information.setAvailables(available.length()!=0 ? available : null);
+			CompletableFuture<String> taskPayments=CompletableFuture.supplyAsync(() ->
+				paymentMethodsService.findPaymentMethods(token, jsonNode.at(siteId).asText())
+				,service);
 			
-		} catch (NumberFormatException e) {
+			CompletableFuture<Double> taskRating=CompletableFuture.supplyAsync(() ->
+				getRatingAverage(jsonNode.get(itemId).asText(),token),service);
 			
-		}
+			CompletableFuture.runAsync(() ->{
+				information.setDiscount_porcentage(getDiscount(jsonNode));
+				information.setPrice(jsonNode.at(ItemPrice).asDouble());
+				information.setCurrency_id(jsonNode.at(currency).asText());
+				information.setInternational_delivery_mode(jsonNode.at(international).asText());
 		
-		for (JsonNode atr : jsonNode.get(attributes)) {
-			if(atr.get("id").asText().equals(brandId)) {
-				information.setBrand(atr.get(brandName).asText());
-				break;
+			},service); 
+			
+			CompletableFuture.runAsync(() ->{
+				for (JsonNode atr : jsonNode.get(attributes)) {
+					if(atr.get("id").asText().equals(brandId)) {
+						information.setBrand(atr.get(brandName).asText());
+						break;
+						}
+					}
+				});
+			
+			CompletableFuture<Warranty> taskWarranty=CompletableFuture
+						.supplyAsync(() -> getWarranty(jsonNode),service);
+			
+			try {
+				information.setTotal_sales(taskTotalSales.get().length()!=0 ?
+						taskTotalSales.get() : null);
+				information.setAvailables(taskAvailables.get().length()!=0 ?
+						taskAvailables.get() : null);
+				information.setShipping(taskShipping.get());
+				information.setPayment_methods(taskPayments.get());
+				information.setRating_average(taskRating.get());
+				information.setWarranty(taskWarranty.get());
+				
+				if(information.getShipping()!=null) {
+					information.getShipping().setCurrency(jsonNode.at(currency).asText());
+				}
+			} catch (InterruptedException | ExecutionException e) {
 			}
-		}
+		
 		return information;
 	}
-	
+
+
+
 
 	@Override
 	public Warranty getWarranty(JsonNode jsonNode) {
@@ -88,18 +109,18 @@ public class InformationItem implements InformationCommercialService {
 	}
 
 	@Override
-	public Shipping getShipping(JsonNode jsonNode) {
+	public Shipping getShipping(JsonNode jsonNode, String token) {
 		if(jsonNode.at(freshipping).asBoolean()) {
 			return Shipping.builder().mode(ShippingMode.free).build();
 		}
-		return shippingService.getShippingItem(jsonNode.get(itemId).asText());	
+		return shippingService.getShippingItem(jsonNode.get(itemId).asText(),token);	
 	}
 
 
 	@Override
 	public int getDiscount(JsonNode jsonNode) {
-		int orignalPrice=jsonNode.get(ItemPriceOriginal).asInt();
-		int currentPrice=jsonNode.get(ItemPrice).asInt();
+		int orignalPrice=jsonNode.at(ItemPriceOriginal).asInt();
+		int currentPrice=jsonNode.at(ItemPrice).asInt();
 		if(orignalPrice!=0) {
 			return (int)(((double)(orignalPrice-currentPrice)/orignalPrice)*100);
 		}
@@ -107,16 +128,24 @@ public class InformationItem implements InformationCommercialService {
 			
 	}
 	
-	
 	@Override
-	public double getRatingAverage(String id) {
+	public double getRatingAverage(String id,String token) {
 		RequestEntity<?> entity= RequestEntity.get(ratingUrl.replace("{id}", id))
-				.header("Authorization", request.getHeader("Authorization"))
+				.header("Authorization",token )
 				.build();
-		ResponseEntity<JsonNode> response=clientHttp.exchange(entity, JsonNode.class);
-		return response.getBody().at(rating).asDouble();
+		try {
+			ResponseEntity<JsonNode> response=clientHttp.exchange(entity, JsonNode.class);
+			return response.getBody().at(rating).asDouble();
+		}catch(HttpClientErrorException e) {
+			return 0;
+		}
 	}
 	
+	
+	
+	
+	@Autowired
+	private ScrapingService scrapingService;
 	
 	@Autowired
 	private ShippingService shippingService;
@@ -129,7 +158,7 @@ public class InformationItem implements InformationCommercialService {
 	
 	@Value("${json.properties.item.free-shipping}")
 	private String freshipping;
-	
+	 
 	@Value("${compare.products.scraper.tags.quantity-available}")
 	private String availableTag;
 	
@@ -147,6 +176,9 @@ public class InformationItem implements InformationCommercialService {
 
 	@Value("${json.properties.item.id}")
 	private String itemId;
+	
+	@Value("${json.properties.item.site_id}")
+	private String siteId;
 	
 	@Value("${json.properties.reviews-item.rating}")
 	private String rating;
@@ -167,7 +199,10 @@ public class InformationItem implements InformationCommercialService {
 	
 	@Value("${json.properties.item.name-terminos-venta}")
 	private String saleTermsNameWarranty;
-	
+
+	@Value("${json.properties.item.international-delivery}")
+	private String international;
+		
 	@Value("${json.properties.item.warranty-unit}")
 	private String warrantyUnit;
 	
@@ -182,10 +217,5 @@ public class InformationItem implements InformationCommercialService {
 
 	@Autowired
 	private PaymentMethodsService paymentMethodsService;
-	
-	@Autowired
-	private HttpServletRequest request;
 
-
-	
 }
