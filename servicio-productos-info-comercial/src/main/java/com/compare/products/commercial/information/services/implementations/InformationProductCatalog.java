@@ -2,12 +2,16 @@ package com.compare.products.commercial.information.services.implementations;
 
 
 
-import java.io.IOException;
 
-import org.jsoup.Jsoup;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Scope;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -19,72 +23,86 @@ import com.compare.products.commercial.information.models.ShippingMode;
 import com.compare.products.commercial.information.models.Warranty;
 import com.compare.products.commercial.information.services.InformationCommercialService;
 import com.compare.products.commercial.information.services.PaymentMethodsService;
+import com.compare.products.commercial.information.services.ScrapingService;
 import com.compare.products.commercial.information.services.ShippingService;
 import com.fasterxml.jackson.databind.JsonNode;
 
 
-import jakarta.servlet.http.HttpServletRequest;
-
 @Service
+@Scope("prototype")
 public class InformationProductCatalog implements InformationCommercialService {
 	
 	@Override
-	public CommercialInformation getInfoCommercial(JsonNode jsonNode) {
-		CommercialInformation information = new CommercialInformation();
+	public CommercialInformation getInfoCommercial(JsonNode jsonNode,String token) {
+			CommercialInformation information=new CommercialInformation();
+			ExecutorService service= Executors.newVirtualThreadPerTaskExecutor();
+			
+			CompletableFuture<Document> taskPermalink=CompletableFuture.supplyAsync(() ->
+				 scrapingService.getDocument(jsonNode.at(permalink).asText()),service);
+			
+			CompletableFuture<Double> taskScraperReviews=CompletableFuture.supplyAsync(() ->
+				scrapingService.getRatingAverage(jsonNode.at(parentId).asText()),service);
 		
-		information.setRating_average(getRatingAverage(jsonNode.at(itemId).asText()));
-		information.setPayment_methods(paymentMethodsService.findPaymentMethods());
-		information.setCurrency_id(jsonNode.at(currency).asText());
-		information.setRating_average(getRatingAverage(jsonNode.at(itemId).asText()));
-		information.setDiscount_porcentage(getDiscount(jsonNode));
-		information.setWarranty(getWarranty(jsonNode));
-		information.setShipping(getShipping(jsonNode));
-		information.setPrice(jsonNode.at(ProductPrice).asDouble());
-		information.setInternational_delivery_mode(jsonNode.at(international).asText());
-		if(information.getShipping().getCosts()!=null) {
-			information.getShipping().setCurrency(jsonNode.at(currency).asText());
-		}
+			CompletableFuture<Shipping> taskShipping=CompletableFuture.supplyAsync(() ->
+				getShipping(jsonNode,token),service);
+			
+			CompletableFuture<String> taskPayments=CompletableFuture.supplyAsync(() ->
+				paymentMethodsService.findPaymentMethods(token,jsonNode.at(siteId).asText())
+				,service);
+			
+			CompletableFuture<Double> taskRating=CompletableFuture.supplyAsync(() ->
+				getRatingAverage(jsonNode.at(itemId).asText(),token),service);
+			
+			CompletableFuture<String> taskAvailables=CompletableFuture.supplyAsync(() ->
+				scrapingService.getAvailables(taskPermalink),service);
+			
+			CompletableFuture<String> taskTotalSales=CompletableFuture.supplyAsync(() ->
+				scrapingService.getSales(taskPermalink),service);
+			
+			
+			CompletableFuture.runAsync(() ->{
+				information.setDiscount_porcentage(getDiscount(jsonNode));
+				information.setPrice(jsonNode.at(ProductPrice).asDouble());
+				information.setCurrency_id(jsonNode.at(currency).asText());
+				information.setInternational_delivery_mode(jsonNode.at(international).asText());
+				},service); 
+			
+			CompletableFuture.runAsync(() ->{
+				for (JsonNode atr : jsonNode.get(attributes)) {
+					if(atr.get("id").asText().equals(brandId)) {
+						information.setBrand(atr.at(brandName).asText());
+						break;
+						}
+					}
+				});
+			
+			CompletableFuture<Warranty> taskWarranty=CompletableFuture
+						.supplyAsync(() -> getWarranty(jsonNode),service);
 
-		Document document =null;
-		try {
-			document = Jsoup.connect(jsonNode.at(permalink).asText()).get();
-		} catch (IOException e) {
 			
-		}
-		try {
-			String sales=document.getElementsByClass(salesTag)
-					.text()
-					.replaceAll("[a-zA-Z]|\s|\\|","");
-			information.setTotal_sales(sales.length()!=0 ? sales : null);
-		} catch ( NumberFormatException e) {
 			
-		}
-		try {
-			String available=document.getElementsByClass(availableTag)
-					.text()
-					.replaceAll("[a-zA-Z]|\s|[(]|[)]","");
-			information.setAvailables(available.length()!=0 ? available : null);
-		} catch (NumberFormatException e) {
-			
-		}
-		
-		if(information.getRating_average()==0&& jsonNode.at(parentId)!=null) {
 			try {
-				document = Jsoup.connect(reviewsUrl.replace("{parent_id}",
-						jsonNode.at(parentId).asText()))
-						.get();
-				information.setRating_average(Double.parseDouble(document.getElementsByClass("ui-review-capability__rating__average ui-review-capability__rating__average--desktop").text()));
-			} catch (IOException | NumberFormatException e) {
-				e.printStackTrace();
+				information.setShipping(taskShipping.get());
+				information.setPayment_methods(taskPayments.get());
+				information.setTotal_sales(taskTotalSales.get().length()!=0 ?
+						taskTotalSales.get() : null);
+				information.setAvailables(taskAvailables.get().length()!=0 ?
+						taskAvailables.get() : null);
+				information.setWarranty(taskWarranty.get());
+				
+				if(information.getShipping()!=null) {
+					information.getShipping().setCurrency(jsonNode.at(currency).asText());
 				}
-		}
-		
-		for (JsonNode atr : jsonNode.get(attributes)) {
-			if(atr.get("id").asText().equals(brandId)) {
-				information.setBrand(atr.get(brandName).asText());
-				break;
+				if(taskRating.get()== 0 || taskRating.get()!= taskScraperReviews.get() 
+						&& taskScraperReviews.get()!=0) {
+					information.setRating_average(taskScraperReviews.get());
+				}
+				else {
+					information.setRating_average(taskRating.get());
+				}
+			} catch (InterruptedException | ExecutionException e) {
+				e.printStackTrace();
 			}
-		}
 		
 		return information;
 	
@@ -115,24 +133,30 @@ public class InformationProductCatalog implements InformationCommercialService {
 	}
 	
 	@Override
-	public Shipping getShipping(JsonNode jsonNode) {
+	public Shipping getShipping(JsonNode jsonNode, String token) {
 		if(jsonNode.at(freshipping).asBoolean()) {
 			return Shipping.builder().mode(ShippingMode.free).build();
 		}
-		
-		return shippingService.getShippingItem(jsonNode.at(itemId).asText());
+		return shippingService.getShippingItem(jsonNode.at(itemId).asText(),token);
 	}
 	
 	@Override
-	public double getRatingAverage(String id) {
+	public double getRatingAverage(String id, String token) {
 		RequestEntity<?> entity= RequestEntity.get(ratingUrl.replace("{id}", id))
-				.header("Authorization", request.getHeader("Authorization"))
+				.header("Authorization", token)
 				.build();
+		
 		ResponseEntity<JsonNode> response=clientHttp.exchange(entity, JsonNode.class);
 		
 		return response.getBody().at(rating).asDouble();
 	}
 	
+	
+	
+	
+	
+	@Autowired
+	private ScrapingService scrapingService;
 
 	@Value("${compare.products.scraper.tags.quantity-available}")
 	private String availableTag;
@@ -157,6 +181,9 @@ public class InformationProductCatalog implements InformationCommercialService {
 
 	@Value("${json.properties.product_catalog.id}")
 	private String itemId;
+	
+	@Value("${json.properties.product_catalog.site_id}")
+	private String siteId;
 	
 	@Value("${json.properties.product_catalog.parent}")
 	private String parentId;
@@ -206,6 +233,4 @@ public class InformationProductCatalog implements InformationCommercialService {
 	@Autowired
 	private ShippingService shippingService;
 	
-	@Autowired
-	private HttpServletRequest request;
 }
