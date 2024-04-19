@@ -16,6 +16,15 @@ It will redirect to the mercadolibre page to carry out the authentication proces
 
 After registering or logging in with a MercadoLibre account, you will be giving the application permissions to make requests to the MercadoLibre API on behalf of the account owner.
 
+## Integration with Google cloud vertex AI
+[Generative AI](https://cloud.google.com/vertex-ai/generative-ai/docs/learn/overview) and natural language are the main technologies used to achieve the objective, which is to generate a value comparison from the information in the publications.
+
+This application takes advantage of the benefits of [Vertex AI](https://cloud.google.com/vertex-ai/docs)'s generative AI to analyze the descriptions and characteristics of the products or publications that will be compared and through AI.
+Generative Gemini can give guidance to users about which publication may be a better purchase option. AI is also used to make a comparison based on the opinions of a publication.
+
+In the **compareproducts-AI-services** submodule you will find the services with analysis functionalities with generative AI.
+
+The model currently used is **Gemini 1.0 Pro**.
 
 ## Documentation
 
