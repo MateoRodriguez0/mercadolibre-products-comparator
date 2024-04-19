@@ -61,7 +61,7 @@ public class OpinionProductCatalog implements OpinionService{
 				}
 			}
 		}
-		return 0.0;
+		return null;
 	}
 
 	@Override
@@ -72,7 +72,7 @@ public class OpinionProductCatalog implements OpinionService{
 			String parentId=publication.at(ParentId).asText();
 			JsonNode childrens=publication.at(childrenIds);
 			
-			if(itemId.length() != 0 & parentId.length() != 0 && childrens.size()==0) {
+			if(itemId.length() != 0 & parentId=="null" & childrens.size()==0) {
 				return itemService.getReviews(itemId, token);
 			}
 			if(parentId!="null") {
