@@ -49,12 +49,26 @@ public class OpinionItem implements OpinionService {
 	    	List<CompletableFuture<Collection<Opinion>>> futures= new ArrayList<>();
 	        ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor(); 
 
-	        while (limit<=total & total-(limit+offset)>0) {
-	        	offset += limit;
-	            futures.add(CompletableFuture.supplyAsync(new FutureTaskOpinions
-	            		(id,offset,token,client, contentReview, rateReview, reviewsItem),
-	            		 executor));
-	            }
+	        if(ischildren) {
+	        	while (limit<=total & total-(limit+offset)>0) {
+		        	offset += limit;
+		            futures.add(CompletableFuture.supplyAsync(new FutureTaskOpinions
+		            		(id,offset,token,client, contentReview, rateReview, reviewsItem),
+		            		 executor));
+		            if(offset==10 && total >15) {
+		            	offset=total-limit;
+		            }
+		            }
+	        }
+	        else {
+	        	while (limit<=total & total-(limit+offset)>0) {
+		        	offset += limit;
+		            futures.add(CompletableFuture.supplyAsync(new FutureTaskOpinions
+		            		(id,offset,token,client, contentReview, rateReview, reviewsItem),
+		            		 executor));
+		            }
+	        }
+	        
 	        for (CompletableFuture<Collection<Opinion>> future : futures) {
 	            try {
 					opinions.addAll(future.get());
@@ -96,6 +110,10 @@ public class OpinionItem implements OpinionService {
 	@Value("${json.properties.reviews-item.rate-review}")
 	private String rateReview;	
 	
-
+	private boolean ischildren=false;
+	
+	public void setIschildren(boolean ischildren) {
+		this.ischildren = ischildren;
+	}
 	
 }

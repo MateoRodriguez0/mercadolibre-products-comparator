@@ -1,15 +1,18 @@
 package com.compare.products.opinions.services.implementations;
 
+import java.io.IOException;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.StructuredTaskScope;
 import java.util.concurrent.StructuredTaskScope.Subtask;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
@@ -17,6 +20,7 @@ import org.springframework.stereotype.Service;
 import com.compare.products.opinions.clients.ReviewsClient;
 import com.compare.products.opinions.models.Opinion;
 import com.compare.products.opinions.services.OpinionService;
+import com.compare.products.opinions.services.ScrapingService;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,43 +31,53 @@ public class OpinionProductCatalog implements OpinionService{
 
 	@Override
 	public Double getRatingAverage(String id) {
-		JsonNode publication=getCatalogProduct(id, request.getHeader("Authorization"));
-		if(publication!= null) {
-			String itemId=publication.at(this.itemId).asText();
-			String parentId=publication.at(this.ParentId).asText();
-			JsonNode childrens=publication.at(childrenIds);
-			if(itemId.length() != 0 & parentId.equals("null") && childrens.size()==0) {
-				return getReviews(itemId, 0, request.getHeader("Authorization"))
+		String token=request.getHeader("Authorization");
+	    boolean isparent=Boolean.valueOf(request.getParameter("isparent"));
+	
+	    CompletableFuture<Double> futureScraper= CompletableFuture.supplyAsync(() -> {
+	    	if(isparent) {
+	    		try {
+					return scrapingService.getRatingAverage(id);
+				} catch (IOException e) {}
+		    }
+			return null;
+		}, service);
+	    
+	    CompletableFuture<Double> futureApi= CompletableFuture.supplyAsync(() -> {
+	    	JsonNode publication=getCatalogProduct(id, token);
+	    	if(isparent) {
+	    		JsonNode childrens=publication.at(childrenIds);
+				try {
+					List<String> ItemsId = getItemsId(childrens, token);
+					return getRatingsAverageForAllItems
+							(ItemsId,token );
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				return null;
+	    	}
+	    	else {
+	    		String itemId=publication.at(this.itemId).asText();
+	    		return getReviews(itemId, 0, token)
 						.at(rating).asDouble();
+	    	}
+	    },service);
+	   
+		try {
+			futureScraper.join();
+			if(futureScraper.get()==null) {
+				return futureApi.get();
 			}
-			
-			if(parentId!="null") {
-				JsonNode parentProduct=getCatalogProduct(parentId, request.getHeader("Authorization"));
-				childrens=parentProduct.at(childrenIds);
-				List<String> ItemsId;
-				try {
-					ItemsId = getItemsId(childrens, request.getHeader("Authorization"));
-					return getRatingsAverageForAllItems
-							(ItemsId,request.getHeader("Authorization") );
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+			else {
+				return futureScraper.get();
 			}
-			
-			if(childrens.size()>0){
-				try {
-					List<String>ItemsId= getItemsId(childrens, request.getHeader("Authorization"));
-					return getRatingsAverageForAllItems
-							(ItemsId,request.getHeader("Authorization") );
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
+		} catch (InterruptedException | ExecutionException e) {
+			e.printStackTrace();
 		}
-		return null;
+		return null;	
 	}
-
+	
+	
 	@Override
 	public List<Opinion> getReviews(String id, String token) {
 		JsonNode publication=getCatalogProduct(id,token);
@@ -91,20 +105,21 @@ public class OpinionProductCatalog implements OpinionService{
 	
 	public List<Opinion> getOpinionsForChildrens(JsonNode childrens, String token){
 		List<Opinion>opinions= new ArrayList<>();
-		List<Subtask<List<Opinion>>>substaks=new ArrayList<>();
+		itemService.setIschildren(true);
 		try (var scope= new StructuredTaskScope<Collection<Opinion>>()){
 			List<String>ItemsId= getItemsId(childrens, token);
 			for (String item : ItemsId) {
-				substaks.add(scope.fork(()->itemService.getReviews(item, token)));
+				scope.fork(() -> {
+					opinions.addAll(itemService.getReviews(item, token));
+					return null;
+				});
+				
 			}
 			scope.join();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		for (Subtask<List<Opinion>> subtask : substaks) {
-			opinions.addAll(subtask.get());
-		}
+	
 		return opinions;
 	}
 	
@@ -116,8 +131,6 @@ public class OpinionProductCatalog implements OpinionService{
 	public JsonNode getReviews(String id,int offset,String token) {
 		return client.findReviewsItem(id,offset, token).getBody();
 	}
-	
-	
 	
 	public List<String> getItemsId(JsonNode Childrens,String token) throws InterruptedException{
 		List<String> ids= new ArrayList<>();
@@ -144,7 +157,6 @@ public class OpinionProductCatalog implements OpinionService{
 	public Double getRatingsAverageForAllItems(List<String> items,String token) throws InterruptedException {
 		List<Double> califications= new ArrayList<>();
 		List<Subtask<Double>> subtasks= new ArrayList<>();
-		
 		try (var scope= new StructuredTaskScope<Double>()){
 			for (String itemId : items) {
 				subtasks.add(scope.fork(() ->{
@@ -177,8 +189,10 @@ public class OpinionProductCatalog implements OpinionService{
 	private ReviewsClient client;
 	
 	@Autowired
-	@Qualifier("opinionItem")
-	OpinionService itemService;
+	private ScrapingService scrapingService;
+	
+	@Autowired
+	OpinionItem itemService;
 	
 	@Value("${json.properties.product_catalog.parent}")
 	private String ParentId;	
@@ -189,7 +203,13 @@ public class OpinionProductCatalog implements OpinionService{
 	@Value("${json.properties.product_catalog.id}")
 	private String itemId;
 	
+	@Value("${json.properties.product_catalog.product_id}")
+	private String product_id;
+	
 	@Value("${json.properties.reviews-item.rating}")
 	private String rating;
+	
+	@Autowired
+	private ExecutorService service;
 	
 }

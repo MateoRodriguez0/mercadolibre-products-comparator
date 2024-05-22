@@ -21,7 +21,6 @@ public class FutureTaskOpinions implements Supplier<Collection<Opinion>>{
 	
 	@Override
 	public Collection<Opinion> get() {
-
 		List<Opinion> opinions = new ArrayList<>();
 		JsonNode Listreviews=  client.findReviewsItem(id,offset, token).getBody();
 		for(JsonNode jsonNode : Listreviews.at(reviewsItem)) {

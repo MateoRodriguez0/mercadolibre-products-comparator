@@ -24,9 +24,11 @@ public class OpinionsController {
 						.getOpinionService(type).getReviews(id,token));
 	}
 	
-	@GetMapping(value="/rating",headers = {"Authorization"})
+	@GetMapping(value="/rating")
 	public ResponseEntity<?> getRatingAverage(@RequestParam(name = "id")String id,
-			@RequestParam(name = "type")PublicationType type) {
+			@RequestParam(name = "type")PublicationType type,
+			@RequestParam(required = false) boolean isparent,
+			@RequestHeader(name = "Authorization") String token) {
 	
 		return ResponseEntity.ok(opinionServiceFacade
 						.getOpinionService(type).getRatingAverage(id));
