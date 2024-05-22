@@ -12,10 +12,10 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.WebRequest;
 
+import com.compare.products.commons.models.Seller;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.products.compare.vendedores.clients.SellerFeignClient;
-import com.products.compare.vendedores.models.Seller;
 import com.products.compare.vendedores.services.AuthorizathionService;
 import com.products.compare.vendedores.services.ResponseTimeServices;
 import com.products.compare.vendedores.services.SellerServices;
@@ -33,14 +33,14 @@ public class SellerServicesImpl implements SellerServices {
 
 
 	@Override
-	public Seller getSellerById(String id,String itemId) {
+	public Seller getSellerById(String id,String[] items) {
 		authorizathionService.SetToken(request.getHeader("Authorization"));
 		
 		Seller seller= new Seller();
 		 
 		try(var scope= new StructuredTaskScope<>()){
 			Subtask<String> time=scope.fork(() ->responseTime
-					.timeOfResponseBySeller(itemId));
+					.timeOfResponseBySeller(items));
 			Subtask<ObjectNode> taskApi1=scope.fork(()->sellerClients.userById(id).getBody());
 		
 			
@@ -144,7 +144,7 @@ public class SellerServicesImpl implements SellerServices {
         		seller.setExperience("nuevo");
         	
         }
-        
+        seller.setExperience(seller.getExperience()+" vendiendo en Mercado Libre");
         
         }
 	

@@ -1,66 +1,117 @@
 package com.products.compare.vendedores.services.implementations;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.StructuredTaskScope;
 import java.util.concurrent.StructuredTaskScope.Subtask;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
+import com.compare.products.commons.models.ResponseTime;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.products.compare.vendedores.clients.SellerFeignClient;
+import com.products.compare.vendedores.models.ResponseTimeItem;
 import com.products.compare.vendedores.services.ResponseTimeServices;
 import com.products.compare.vendedores.util.DatesUtil;
 
 @Service
 @Scope("prototype")
 public class ResponseTimeServicesImpl implements ResponseTimeServices {
-	private ObjectNode questions=new ObjectNode(null);
-	private int offset=0;
+	
 	
 	@Override
-	public String timeOfResponseBySeller(String itemId) {
-		offset=0;
+	public String timeOfResponseBySeller(String[] itemsId) {
+		List<ResponseTimeItem> responsesTime= new ArrayList<>();
 		int totalResponses=0;
 		int time=0;
-		questions= sellerClients.getQuestionsByItem(itemId, api_version,0)
-				.getBody();
-		int limit=questions.get("limit").asInt();
-		int totalQuestions=questions.get("total").asInt();
+		int totalQuestions=0;
+		int durationAvg=0;
+		int totalItems=0;
+		try(var scope= new StructuredTaskScope<>()){
+			for (String r : itemsId) {
+				scope.fork(() -> {
+					responsesTime.add(timeOfResponseBySeller(r));
+					return true;
+				});
+			}
+			scope.join();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		for (ResponseTimeItem r : responsesTime) {
+			totalResponses+=r.getTotalResponses();
+			totalQuestions+=r.getTotalQuestions();
+			time+=r.getTime();
+			if(r.getTotalResponses()!=0) {
+				durationAvg+=r.getTime()/r.getTotalResponses();
+				totalItems++;
+			}
+			
+			
+		}
 		
 		if(totalQuestions==0) {
-			return "UNQUESTION";
+			return ResponseTime.UNQUESTION.name();
 		}
-		
-		do {
-			try(var scope= new StructuredTaskScope<>()){
-				Subtask<int []> subtask= scope.fork(() -> timeOfResponseByQuestions(questions));
-				Subtask<ObjectNode>subtask2=null;
-				
-				offset+=50;
-				
-				if(totalQuestions>offset && totalQuestions <(offset+limit)) {
-					subtask2=scope.fork(()->
-					sellerClients.getQuestionsByItem(itemId, api_version,offset).getBody());
+		else if(totalQuestions!=0&&totalResponses==0) {
+			return ResponseTime.UNANSWERED.name();
+		}
+		return formatResponseTime( totalResponses,time, 
+				Duration.ofMinutes(durationAvg/totalItems));
+	}
+	
+	@Override
+	public ResponseTimeItem timeOfResponseBySeller(String itemId) {
+		AtomicReference<ObjectNode> questions=new AtomicReference<>(new ObjectNode(null));
+		AtomicInteger offset=new AtomicInteger(0);
+		int totalResponses=0;
+		int time=0;
+		questions.set(sellerClients.getQuestionsByItem(itemId, api_version,0)
+				.getBody());
+		int limit=questions.get().get("limit").asInt();
+		int totalQuestions=questions.get().get("total").asInt();
+		if(totalQuestions==0) {
+			return ResponseTimeItem.builder()
+					.totalQuestions(0)
+					.time(0)
+					.totalResponses(0)
+					.build();
+		}
+		try (var scope = new StructuredTaskScope<>()) {
+			do {
+				Subtask<int[]> subtask = scope.fork(() -> 
+						timeOfResponseByQuestions(questions.get()));
+				Subtask<ObjectNode> subtask2 = null;
+				offset.set(offset.get()+50);
+
+				if (totalQuestions > offset.get() && totalQuestions < (offset.get() + limit)) {
+					subtask2 = scope.fork(() ->
+							sellerClients.getQuestionsByItem(itemId, api_version, offset.get())
+							.getBody());
 				}
 				scope.join();
-				totalResponses+=subtask.get()[0];
-				time+=subtask.get()[1];
-				if(subtask2!=null)
-					questions=subtask2.get();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}	
-		}while(totalQuestions>offset && totalQuestions <(offset+limit));
-
-		if(totalResponses==0) {
-			return "UNANSWERED";
+				totalResponses += subtask.get()[0];
+				time += subtask.get()[1];
+				if (subtask2 != null)
+					questions.set(subtask2.get());
+			} while (totalQuestions > offset.get() && totalQuestions < (offset.get() + limit));
+		} catch (InterruptedException e) {
+			e.printStackTrace();
 		}
 		
-		return formatResponseTime( totalResponses, time, 
-				Duration.ofMinutes(time/totalResponses));
+
+		return ResponseTimeItem.builder()
+				.time(time)
+				.totalQuestions(totalQuestions)
+				.totalResponses(totalResponses)
+				.build();
 	}
 
 	public int[] timeOfResponseByQuestions(ObjectNode questions) {
@@ -101,5 +152,7 @@ public class ResponseTimeServicesImpl implements ResponseTimeServices {
 	
 	@Value("${compare.products.api.version}")
 	private String api_version;
+
+
 	
 }
