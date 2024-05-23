@@ -13,10 +13,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
-import com.compare.products.commons.models.ResponseTime;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.products.compare.vendedores.clients.SellerFeignClient;
+import com.products.compare.vendedores.models.ResponseTime;
 import com.products.compare.vendedores.models.ResponseTimeItem;
 import com.products.compare.vendedores.services.ResponseTimeServices;
 import com.products.compare.vendedores.util.DatesUtil;

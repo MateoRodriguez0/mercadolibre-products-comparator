@@ -12,10 +12,10 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.WebRequest;
 
-import com.compare.products.commons.models.Seller;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.products.compare.vendedores.clients.SellerFeignClient;
+import com.products.compare.vendedores.models.Seller;
 import com.products.compare.vendedores.services.AuthorizathionService;
 import com.products.compare.vendedores.services.ResponseTimeServices;
 import com.products.compare.vendedores.services.SellerServices;

@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.compare.products.commons.models.Seller;
+import com.products.compare.vendedores.models.Seller;
 import com.products.compare.vendedores.services.SellerServices;
 
 @RestController

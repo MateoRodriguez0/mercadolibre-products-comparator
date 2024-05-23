@@ -1,6 +1,6 @@
 package com.products.compare.vendedores.services;
 
-import com.compare.products.commons.models.Seller;
+import com.products.compare.vendedores.models.Seller;
 
 public interface SellerServices {
 	
