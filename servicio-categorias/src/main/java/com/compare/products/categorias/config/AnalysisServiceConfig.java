@@ -1,4 +1,4 @@
-package com.compare.products.categoria.analisis;
+package com.compare.products.categorias.config;
 
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;

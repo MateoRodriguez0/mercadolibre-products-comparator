@@ -1,4 +1,4 @@
-package com.compare.products.categoria.analisis.services;
+package com.compare.products.categorias.services;
 
 import com.fasterxml.jackson.databind.JsonNode;
 

@@ -1,6 +1,5 @@
-package com.compare.products.categoria.analisis.services.implementations;
+package com.compare.products.categorias.services.implementations;
 
-import java.net.URI;
 import java.util.concurrent.StructuredTaskScope;
 import java.util.concurrent.StructuredTaskScope.Subtask;
 import java.util.concurrent.StructuredTaskScope.Subtask.State;
@@ -8,28 +7,25 @@ import java.util.concurrent.StructuredTaskScope.Subtask.State;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Scope;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
-import com.compare.products.categoria.analisis.models.DetailsCategory;
-import com.compare.products.categoria.analisis.services.CategoryService;
-import com.compare.products.categoria.analisis.services.NameCategoryService;
+import com.compare.products.categorias.clients.CategoriesClient;
+import com.compare.products.categorias.models.DetailsCategory;
+import com.compare.products.categorias.services.CategoryService;
+import com.compare.products.categorias.services.NameCategoryService;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 @Service
 @Primary
+@Scope("prototype")
 public class CategoryServicesImpl implements CategoryService {
 
 	@Override
 	public JsonNode findCategorybyId(String id) {
-		
-		 ResponseEntity<ObjectNode>response= clientHttp
-				 .getForEntity(URI.create(infoCategory.replace("{id}",id)),
-						 ObjectNode.class);
-		
-		return response.getBody().get(FatherCategoriesProperity);
+		ResponseEntity<JsonNode>response= client.infoCategories(id);
+		return response.getBody().at(FatherCategoriesProperity);
 	}
 
 	
@@ -72,19 +68,26 @@ public class CategoryServicesImpl implements CategoryService {
 		
 	}
 	
-	
+	@Override
+	public boolean areCompatibles(String[] ids) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 	
 	@Value("${compare.products.paths.info-category}")
-	String infoCategory;
+	private String infoCategory;
 	
 	@Value("${responses.json-property.father-category}")
-	String FatherCategoriesProperity;
+	private String FatherCategoriesProperity;
 	
 	@Autowired
-	NameCategoryService nameCategoryService;
+	private NameCategoryService nameCategoryService;
 	
+
 	@Autowired
-	RestTemplate clientHttp;
+	private CategoriesClient client;
+
 
 
 

@@ -1,4 +1,4 @@
-package com.compare.products.categoria.analisis.models;
+package com.compare.products.categorias.models;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

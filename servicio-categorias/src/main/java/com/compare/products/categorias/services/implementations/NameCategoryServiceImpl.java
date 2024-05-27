@@ -1,12 +1,14 @@
-package com.compare.products.categoria.analisis.services.implementations;
+package com.compare.products.categorias.services.implementations;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
-import com.compare.products.categoria.analisis.services.NameCategoryService;
+import com.compare.products.categorias.services.NameCategoryService;
 import com.fasterxml.jackson.databind.JsonNode;
 
 @Service
+@Scope("prototype")
 public class NameCategoryServiceImpl implements NameCategoryService{
 
 	@Override
