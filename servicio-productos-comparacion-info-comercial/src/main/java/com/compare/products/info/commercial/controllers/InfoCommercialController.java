@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.compare.products.commons.models.Publication;
+import com.compare.products.info.commercial.models.Publication;
 import com.compare.products.info.commercial.services.ComparationServices;
 
 @RestController

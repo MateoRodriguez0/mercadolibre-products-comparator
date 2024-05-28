@@ -8,9 +8,9 @@ import java.util.stream.Collectors;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
-import com.compare.products.commons.models.CommercialInformation;
-import com.compare.products.commons.models.ShippingCost;
-import com.compare.products.commons.models.ShippingMode;
+import com.compare.products.info.commercial.models.CommercialInformation;
+import com.compare.products.info.commercial.models.ShippingCost;
+import com.compare.products.info.commercial.models.ShippingMode;
 import com.compare.products.info.commercial.util.DateUtil;
 
 @Service

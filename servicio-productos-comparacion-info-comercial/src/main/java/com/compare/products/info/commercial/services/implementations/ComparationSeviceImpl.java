@@ -8,16 +8,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
-import com.compare.products.commons.models.CommercialInformation;
-import com.compare.products.commons.models.Publication;
-import com.compare.products.commons.models.ShippingCost;
-import com.compare.products.commons.models.ShippingMode;
-import com.compare.products.commons.models.Warranty;
 import com.compare.products.info.commercial.clients.InfoCommercialClient;
+import com.compare.products.info.commercial.models.CommercialInformation;
 import com.compare.products.info.commercial.models.ComparativeInformationCommercial;
 import com.compare.products.info.commercial.models.HandlingComparative;
 import com.compare.products.info.commercial.models.InfoCommercialProdcut;
+import com.compare.products.info.commercial.models.Publication;
 import com.compare.products.info.commercial.models.ShippingComparative;
+import com.compare.products.info.commercial.models.ShippingCost;
+import com.compare.products.info.commercial.models.ShippingMode;
+import com.compare.products.info.commercial.models.Warranty;
 import com.compare.products.info.commercial.services.ComparationServices;
 import com.compare.products.info.commercial.services.ShippingComparationService;
 
@@ -41,10 +41,9 @@ public class ComparationSeviceImpl implements ComparationServices {
 					CommercialInformation info=client
 							.getInformationCommercial(
 								p.getPublication(),p.getPublicationType(),token).getBody();
-					System.out.println(info);
 					info.setId(id);
 					comparative.getBrand().add(new InfoCommercialProdcut(id,
-							info.getBrand()));
+							getBrand(info.getBrand())));
 					comparative.getDiscount_porcentage().add(new InfoCommercialProdcut(id,
 							getDiscount(info.getDiscount_porcentage())));
 					comparative.getAvailables().add(new InfoCommercialProdcut(id,
@@ -59,6 +58,8 @@ public class ComparationSeviceImpl implements ComparationServices {
 							"$ "+info.getPrice()+" "+info.getCurrency_id()));
 					comparative.getWarranty().add(new InfoCommercialProdcut(id, 
 							getWarranaty(info.getWarranty())));
+					comparative.getTotal_sales().add(new InfoCommercialProdcut(id, 
+							info.getTotal_sales()));
 			
 					informations.add(info);
 					return info;
@@ -131,8 +132,13 @@ public class ComparationSeviceImpl implements ComparationServices {
 	}
 	
 	private String getDiscount(int d) {
-		return d>=0? d+"%" : "No tiene";
+		return d>0? d+"%" : "No tiene";
 	}
+	
+	private String getBrand(String brand) {
+		return brand!=null? brand : "-";
+	}
+	
 	
 	private InfoCommercialProdcut getShipping(CommercialInformation com) {
 		return new InfoCommercialProdcut(com.getId(),
