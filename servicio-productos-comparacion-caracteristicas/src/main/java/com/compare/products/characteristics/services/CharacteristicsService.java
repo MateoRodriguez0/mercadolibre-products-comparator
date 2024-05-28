@@ -5,7 +5,7 @@ import java.util.Set;
 
 import com.compare.products.characteristics.models.Attribute;
 import com.compare.products.characteristics.models.Group;
-import com.compare.products.commons.models.Publication;
+import com.compare.products.characteristics.models.Publication;
 import com.fasterxml.jackson.databind.JsonNode;
 
 public interface CharacteristicsService {

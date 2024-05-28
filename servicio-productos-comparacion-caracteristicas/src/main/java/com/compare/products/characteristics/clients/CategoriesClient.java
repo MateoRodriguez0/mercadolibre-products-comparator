@@ -5,7 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@FeignClient(name = "servicioCategorias", url = "http://localhost:9090")
+@FeignClient(name = "servicio-categorias")
 public interface CategoriesClient {
 	
 	@GetMapping(value = "/compatibles/domains")

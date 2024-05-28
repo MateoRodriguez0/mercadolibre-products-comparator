@@ -19,8 +19,8 @@ import org.springframework.stereotype.Service;
 import com.compare.products.characteristics.clients.ApiCategoriesClient;
 import com.compare.products.characteristics.models.Attribute;
 import com.compare.products.characteristics.models.Group;
+import com.compare.products.characteristics.models.Publication;
 import com.compare.products.characteristics.services.CharacteristicsService;
-import com.compare.products.commons.models.Publication;
 import com.fasterxml.jackson.databind.JsonNode;
 
 @Service

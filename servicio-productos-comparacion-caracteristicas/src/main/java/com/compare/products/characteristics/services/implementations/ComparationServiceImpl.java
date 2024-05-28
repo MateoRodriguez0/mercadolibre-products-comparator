@@ -16,14 +16,14 @@ import com.compare.products.characteristics.models.Attribute;
 import com.compare.products.characteristics.models.Group;
 import com.compare.products.characteristics.models.Product;
 import com.compare.products.characteristics.models.ProductSpecifications;
-
+import com.compare.products.characteristics.models.Publication;
+import com.compare.products.characteristics.models.PublicationType;
 import com.compare.products.characteristics.models.Specifications;
 import com.compare.products.characteristics.models.UniqueSpecifications;
 import com.compare.products.characteristics.services.CharacteristicsService;
 import com.compare.products.characteristics.services.ComparationServices;
 import com.compare.products.characteristics.services.UniqueCharacteristicsServices;
-import com.compare.products.commons.models.Publication;
-import com.compare.products.commons.models.PublicationType;
+
 import com.fasterxml.jackson.databind.JsonNode;
 
 import jakarta.servlet.http.HttpServletResponse;

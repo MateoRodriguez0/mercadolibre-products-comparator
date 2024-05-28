@@ -2,8 +2,7 @@ package com.compare.products.characteristics.services;
 
 import java.util.List;
 
-import com.compare.products.commons.models.Publication;
-
+import com.compare.products.characteristics.models.Publication;
 
 public interface ComparationServices {
 	
