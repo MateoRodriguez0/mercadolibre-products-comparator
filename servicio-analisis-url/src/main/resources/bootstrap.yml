@@ -1,6 +1,8 @@
 spring:
   application:
-    name: service-analisis-url
+    name: servicio-analisis-url
+  profiles:
+    active: dev
   config:
     import: 'optional:configserver:'
   cloud:
@@ -16,5 +18,3 @@ eureka:
       defaultZone: http://eurekaclient:eurekaclient@localhost:8761/eureka
   instance:
     instance-id: ${spring.application.name}:${random.value}
-
-    

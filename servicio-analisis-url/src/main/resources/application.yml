@@ -1,42 +1,6 @@
-server:
-  port: 9876
-  
 spring:
-  cloud:
-    openfeign:
-      circuitbreaker:
-        enabled: true
-      client:
-        config:
-          sites:
-            connect-timeout: 8000
-            read-timeout: 5000
   threads:
     virtual:
       enabled: true
-
-          #Pendiente para optimizar configuracion de la resiliencia
-#-----------------------------------------------------------------------
-resilience4j:
-  circuitbreaker:
-    instances:
-      MercadoLibreSitesClientgetPaises:
-        failure-rate-threshold: 10
-        max-wait-duration-in-half-open-state: 20s
-        permitted-number-of-calls-in-half-open-state: 5
-        minimum-number-of-calls: 5
-        sliding-window-size: 10
-        
-  timelimiter:
-    instances:
-      MercadoLibreSitesClientgetPaises:
-        timeoutDuration: 5s
-        
-#----------------------------------------------------------------------
-
-compare:
-  products:
-    regex-url: "^https://([a-z0-9-]{2,})[\\.](mercadolibre|mercadolivre)(\\.com\\.)([a-z]{2,})[\\/]((M[A-Z]{2}-[0-9]+)|([a-zA-Z0-9-]+[\\/]p[\\/]M[A-Z]{2}+[0-9]+)).*$"
-    
-    
-    
+server:
+  port: 9876
