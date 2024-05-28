@@ -3,7 +3,6 @@ package com.compare.products.commercial.information.controllers;
 import java.util.concurrent.CompletionException;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,7 +19,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 @RestController
 public class InformationCommercialController {
 
-	
 	@PostMapping(value = "/information/commercial",headers = {"Authorization"})
 	public ResponseEntity<?> getInformationCommercial(@RequestBody JsonNode jsonNode,
 			@RequestParam PublicationType type){
@@ -43,16 +41,8 @@ public class InformationCommercialController {
 			
 		}
 		return ResponseEntity.internalServerError().build();
-	
-	
 	}
-	
-	
-	@Value("${json.properties.item.id}")
-	private String itemId;
 	
 	@Autowired
 	private InformationCommercialFacade commercialService;
-	
-	
 }

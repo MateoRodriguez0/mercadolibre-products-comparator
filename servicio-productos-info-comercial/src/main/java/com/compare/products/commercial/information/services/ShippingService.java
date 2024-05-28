@@ -28,6 +28,7 @@ public class ShippingService {
 		try(var scope=new StructuredTaskScope<>()){
 			Subtask<Boolean> freeShipping=scope.fork(() ->{
 				for (JsonNode node : getShippingMethods(id, token).at(channels)) {
+					System.out.println(node);
 					if(node.at(freeShiping).asBoolean()) {
 						return true;
 					}
@@ -146,7 +147,7 @@ public class ShippingService {
 	@Value("${compare.products.paths.adresses}")
 	private String adreeses;
 	
-	@Value("${json.properties.shipping-cost.time_min}")
+	@Value("${json.properties.shipping-cost.time_max}")
 	private String maxTime;
 	
 	@Value("${json.properties.shipping-items.channels}")

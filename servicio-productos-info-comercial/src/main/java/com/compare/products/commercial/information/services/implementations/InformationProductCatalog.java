@@ -1,12 +1,10 @@
 package com.compare.products.commercial.information.services.implementations;
 
-
-
-
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.StructuredTaskScope;
 
 import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,9 +13,12 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
 import org.springframework.web.client.RestTemplate;
 
+import com.compare.products.commercial.information.clients.RatingClient;
 import com.compare.products.commercial.information.models.CommercialInformation;
+import com.compare.products.commercial.information.models.PublicationType;
 import com.compare.products.commercial.information.models.Shipping;
 import com.compare.products.commercial.information.models.Warranty;
 import com.compare.products.commercial.information.services.InformationCommercialService;
@@ -38,9 +39,6 @@ public class InformationProductCatalog implements InformationCommercialService {
 			
 			CompletableFuture<Document> taskPermalink=CompletableFuture.supplyAsync(() ->
 				 scrapingService.getDocument(jsonNode.at(permalink).asText()),service);
-			
-			CompletableFuture<Double> taskScraperReviews=CompletableFuture.supplyAsync(() ->
-				scrapingService.getRatingAverage(jsonNode.at(parentId).asText()),service);
 		
 			CompletableFuture<Shipping> taskShipping=CompletableFuture.supplyAsync(() ->
 				getShipping(jsonNode,token),service);
@@ -50,7 +48,7 @@ public class InformationProductCatalog implements InformationCommercialService {
 				,service);
 			
 			CompletableFuture<Double> taskRating=CompletableFuture.supplyAsync(() ->
-				getRatingAverage(jsonNode.at(itemId).asText(),token),service);
+			  getRating(jsonNode, token),service);
 			
 			CompletableFuture<String> taskAvailables=CompletableFuture.supplyAsync(() ->
 				scrapingService.getAvailables(taskPermalink),service);
@@ -67,7 +65,7 @@ public class InformationProductCatalog implements InformationCommercialService {
 				},service); 
 			
 			CompletableFuture.runAsync(() ->{
-				for (JsonNode atr : jsonNode.get(attributes)) {
+				for (JsonNode atr : jsonNode.at(attributes)) {
 					if(atr.get("id").asText().equals(brandId)) {
 						information.setBrand(atr.at(brandName).asText());
 						break;
@@ -88,16 +86,10 @@ public class InformationProductCatalog implements InformationCommercialService {
 				information.setAvailables(taskAvailables.get().length()!=0 ?
 						taskAvailables.get() : null);
 				information.setWarranty(taskWarranty.get());
+				information.setRating_average(taskRating.get());
 				
 				if(information.getShipping()!=null) {
 					information.getShipping().setCurrency(jsonNode.at(currency).asText());
-				}
-				if(taskRating.get()== 0 || taskRating.get()!= taskScraperReviews.get() 
-						&& taskScraperReviews.get()!=0) {
-					information.setRating_average(taskScraperReviews.get());
-				}
-				else {
-					information.setRating_average(taskRating.get());
 				}
 			} catch (InterruptedException | ExecutionException e) {
 				e.printStackTrace();
@@ -107,6 +99,43 @@ public class InformationProductCatalog implements InformationCommercialService {
 	
 	}
 	
+	private Double getRating(JsonNode jsonNode, String token) {
+		try(var scope= new StructuredTaskScope.ShutdownOnSuccess<Double>()){
+			scope.fork(() -> {
+				if(jsonNode.at(childrensId).size()!=0) {
+					return getRatingAverage(jsonNode.at(id).asText(),
+							PublicationType.catalog_product, true, token);
+				}
+				throw new RuntimeException();
+			});
+			scope.fork(() -> {
+				if(!jsonNode.at(parentId).asText().equals("null")) {
+					return getRatingAverage(jsonNode.at(id).asText(),
+							PublicationType.catalog_product, true, token);
+				}
+				throw new RuntimeException();
+			});
+			
+			scope.fork(() -> {
+				if(jsonNode.at(parentId).asText().equals("null")&&jsonNode.at(childrensId).size()==0) {
+					return getRatingAverage(jsonNode.at(itemId).asText(),
+							PublicationType.catalog_product, true, token);
+				}
+				throw new RuntimeException();
+			});
+			scope.join();
+			return scope.result();
+		} catch (InterruptedException | ExecutionException e) {
+			e.printStackTrace();
+		}
+		return null;
+		
+	}
+	
+	private Double getRatingAverage(String id,PublicationType type,boolean isparent,String token) {
+		return client.getRatingAverage(id, type, isparent, token).getBody();
+		
+	}
 	
 	@Override
 	public int getDiscount(JsonNode jsonNode) {
@@ -152,6 +181,10 @@ public class InformationProductCatalog implements InformationCommercialService {
 	
 	@Autowired
 	private ScrapingService scrapingService;
+	
+
+	@Autowired
+	private RatingClient client;
 
 	@Value("${compare.products.scraper.tags.quantity-available}")
 	private String availableTag;
@@ -175,6 +208,9 @@ public class InformationProductCatalog implements InformationCommercialService {
 	private String ProductPriceOriginal;
 
 	@Value("${json.properties.product_catalog.id}")
+	private String id;
+	
+	@Value("${json.properties.product_catalog.item_id}")
 	private String itemId;
 	
 	@Value("${json.properties.product_catalog.site_id}")
@@ -182,6 +218,9 @@ public class InformationProductCatalog implements InformationCommercialService {
 	
 	@Value("${json.properties.product_catalog.parent}")
 	private String parentId;
+	
+	@Value("${json.properties.product_catalog.children_ids}")
+	private String childrensId;
 
 	@Value("${json.properties.reviews-item.rating}")
 	private String rating;
@@ -203,9 +242,7 @@ public class InformationProductCatalog implements InformationCommercialService {
 	
 	@Value("${json.properties.product_catalog.warranty-number}")
 	private String warrantyNumber;
-	
-	@Value("${json.properties.product_catalog.free-shipping}")
-	private String freshipping;
+
 	
 	@Value("${json.properties.product_catalog.international-delivery}")
 	private String international;

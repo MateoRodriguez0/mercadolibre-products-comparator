@@ -15,7 +15,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import com.compare.products.commercial.information.clients.RatingClient;
 import com.compare.products.commercial.information.models.CommercialInformation;
+import com.compare.products.commercial.information.models.PublicationType;
 import com.compare.products.commercial.information.models.Shipping;
 import com.compare.products.commercial.information.models.Warranty;
 import com.compare.products.commercial.information.services.InformationCommercialService;
@@ -49,7 +51,8 @@ public class InformationItem implements InformationCommercialService {
 				,service);
 			
 			CompletableFuture<Double> taskRating=CompletableFuture.supplyAsync(() ->
-				getRatingAverage(jsonNode.get(itemId).asText(),token),service);
+				client.getRatingAverage(jsonNode.at(itemId).asText(), 
+							PublicationType.item, false, token).getBody());
 			
 			CompletableFuture.runAsync(() ->{
 				information.setDiscount_porcentage(getDiscount(jsonNode));
@@ -60,9 +63,9 @@ public class InformationItem implements InformationCommercialService {
 			},service); 
 			
 			CompletableFuture.runAsync(() ->{
-				for (JsonNode atr : jsonNode.get(attributes)) {
+				for (JsonNode atr : jsonNode.at(attributes)) {
 					if(atr.get("id").asText().equals(brandId)) {
-						information.setBrand(atr.get(brandName).asText());
+						information.setBrand(atr.at(brandName).asText());
 						break;
 						}
 					}
@@ -96,7 +99,7 @@ public class InformationItem implements InformationCommercialService {
 
 	@Override
 	public Warranty getWarranty(JsonNode jsonNode) {
-		for (JsonNode term : jsonNode.get(saleTerms)) {
+		for (JsonNode term : jsonNode.at(saleTerms)) {
 			if(term.get("id").asText().equals(saleTermsNameWarranty)) {
 				return Warranty.builder()
 						.number(term.at(warrantyNumber).asInt())
@@ -109,7 +112,7 @@ public class InformationItem implements InformationCommercialService {
 
 	@Override
 	public Shipping getShipping(JsonNode jsonNode, String token) {
-		return shippingService.getShippingItem(jsonNode.get(itemId).asText(),token);	
+		return shippingService.getShippingItem(jsonNode.at(itemId).asText(),token);	
 	}
 
 
@@ -145,6 +148,9 @@ public class InformationItem implements InformationCommercialService {
 	
 	@Autowired
 	private ShippingService shippingService;
+
+	@Autowired
+	private RatingClient client;
 	
 	@Value("${compare.products.paths.rating-for-item}")
 	private String ratingUrl;

@@ -48,16 +48,6 @@ public class ScrapingService {
 		return available;
 	}
 	
-	public double getRatingAverage(String parentId) {
-		Document document =null;
-		try {
-			document = Jsoup.connect(reviewsUrl.replace("{parent_id}",parentId))
-					.get();
-			return Double.parseDouble(document.getElementsByClass(calificationTag).text());
-		} catch (IOException | NumberFormatException e) {
-			return 0;
-			}
-	}
 	
 	public Document getDocument(String permalink) {
 		try {
