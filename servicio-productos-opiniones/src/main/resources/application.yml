@@ -1,42 +1,15 @@
 spring:
   application:
-    name: servicio-productos-opiniones
+    name: servicio-productos-opiniones                       
+  threads:
+    virtual:
+      enabled: true 
   cloud:
     openfeign:
       client:
         config:
           ReviewsClient:
            url: ${compare.products.api}
-              
-           
-  threads:
-    virtual:
-      enabled: true
-        
-json: 
-  properties:
-   reviews-item:
-    rating: /rating_average
-    reviews: /reviews
-    total: /paging/total
-    limit: /paging/limit
-    content: /content
-    rate-review: /rate
     
-   product_catalog:
-    children_ids: /children_ids
-    id: /buy_box_winner/item_id
-    
-    parent: /parent_id
-
-compare:
-  products:
-    api: https://api.mercadolibre.com
-    paths:
-      reviews: /reviews/item/{id}
-      producto-catalogo: /products/{id} 
-      rating-for-item: https://api.mercadolibre.com
-      search-item: /items/{id}
-      
-   
-     
+server: 
+  port: 0

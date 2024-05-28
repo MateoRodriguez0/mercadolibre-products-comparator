@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: servicio-productos-comparacion-caracteristicas
+  threads:
+    virtual:
+      enabled: true
+server:
+  port: 9093
+  
+  
+             

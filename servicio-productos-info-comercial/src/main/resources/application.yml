@@ -4,38 +4,6 @@ spring:
   threads:
     virtual:
       enabled: true
-    
 server:
-  port: 9091
+  port: 0
   
-compare:
-  products:
-    paths:
-      mercado-pago:
-      # Api de medios de pagos disponibles para un usuario
-        payment-methods: https://api.mercadopago.com/v1/payment_methods
-
-json: 
-  properties:
-  # Nombres de las propiedades en el json de las publicaciones de items
-   item:
-   # propiedad del precio inicial, solo en caso de tener descuento esta propiedad tiene un valor
-    original_price: original_price
-   # propiedad que contiene el precio actual del producto
-    price: price
-    
-  # Nombres de las propiedades en el json de las publicaciones de producto de catalogo   
-   product_catalog:
-    price: /buy_box_winner/price
-    original_price: /buy_box_winner/original_price
-    
-  # Nombres de las propiedades en el json de los metodos de pago, 
-  # necesarias para obtener el listado de medios de pago.     
-   payment-methods:
-     name: name
-     status: status
-     # valor de la propuedad que indica si un metodo de pago esta disponible para el usuario
-     option-active: active
-     
-    
-             

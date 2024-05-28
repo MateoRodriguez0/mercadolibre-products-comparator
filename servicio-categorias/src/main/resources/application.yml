@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: servicio-categorias
+  threads:
+    virtual:
+      enabled: true     
+server:
+  port: 0

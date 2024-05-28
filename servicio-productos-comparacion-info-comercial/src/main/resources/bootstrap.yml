@@ -1,0 +1,21 @@
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eurekaclient:eurekaclient@localhost:8761/eureka
+  instance:
+    instance-id: ${spring.application.name}:${random.value}
+spring:
+  application:
+    name: servicio-comparacion-info-comercial
+  config:
+    import: 'optional:configserver:'
+  cloud:
+    config:
+      discovery:
+        enabled: true
+        service-id: config-server
+      username: config
+      password: config
+  profiles:
+    active:
+    - dev
