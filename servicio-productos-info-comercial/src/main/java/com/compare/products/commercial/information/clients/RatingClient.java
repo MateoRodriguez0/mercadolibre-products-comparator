@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.compare.products.commercial.information.models.PublicationType;
 
-@FeignClient(name = "servicio-productos-opiniones", url = "localhost:8084")
+@FeignClient(name = "servicio-productos-opiniones")
 public interface RatingClient {
 	
 	@GetMapping(value="/reviews/rating")
