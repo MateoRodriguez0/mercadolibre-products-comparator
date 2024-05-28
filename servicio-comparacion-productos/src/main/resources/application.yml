@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: servicio-comparacion-productos
+  threads:
+    virtual:
+      enabled: true
+server:
+  port: 9090      

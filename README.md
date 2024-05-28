@@ -28,13 +28,9 @@ The model currently used is **Gemini 1.0 Pro**.
 
 ## Documentation
 
-[Config-server](https://github.com/MateoRodriguez0/mercadolibre-products-comparator/blob/master/config-server/README.md)
-
-[eureka-server](https://github.com/MateoRodriguez0/mercadolibre-products-comparator/blob/master/eureka-server/README.md)
-
 [Servicio-vendedores]()
 
 [Servicio-analisis-url]()
 
-[Servicio-analisis-categoria]()
+[Servicio-categorias]()
 
