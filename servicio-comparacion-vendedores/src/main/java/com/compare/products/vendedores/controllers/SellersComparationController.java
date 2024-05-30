@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.compare.products.vendedores.models.ComarativeInfoSellers;
 import com.compare.products.vendedores.models.SellerCompare;
 import com.compare.products.vendedores.services.ComparationService;
 
@@ -16,7 +17,7 @@ import com.compare.products.vendedores.services.ComparationService;
 public class SellersComparationController {
 
 	@PostMapping(value = "/compare/sellers")
-	private ResponseEntity<?> comparesellers(@RequestBody List<SellerCompare> sellers,
+	private ResponseEntity<ComarativeInfoSellers> comparesellers(@RequestBody List<SellerCompare> sellers,
 			@RequestHeader(name = "Authorization") String token){
 		
 		try {

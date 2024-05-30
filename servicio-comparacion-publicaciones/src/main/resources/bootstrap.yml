@@ -17,3 +17,13 @@ spring:
   profiles:
     active:
     - dev
+    
+ 
+json: 
+  properties:
+   item:
+    category_id: /category_id  
+   product_catalog:
+     category_id: /buy_box_winner/category_id
+    
+     

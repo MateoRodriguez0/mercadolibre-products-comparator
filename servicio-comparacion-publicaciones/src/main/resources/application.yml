@@ -5,4 +5,18 @@ spring:
     virtual:
       enabled: true
 server:
-  port: 9090      
+  port: 9090
+  
+   
+json: 
+  properties:
+   item:
+    id: /id
+    category_id: /category_id 
+    seller_id: /seller_id   
+   product_catalog:
+     item_id: /buy_box_winner/item_id
+     category_id: /buy_box_winner/category_id  
+     seller_id: /buy_box_winner/seller_id
+     parent: /parent_id
+     children_ids: /children_ids    

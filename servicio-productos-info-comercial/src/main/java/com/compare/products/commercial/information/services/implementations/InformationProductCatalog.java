@@ -110,7 +110,7 @@ public class InformationProductCatalog implements InformationCommercialService {
 			});
 			scope.fork(() -> {
 				if(!jsonNode.at(parentId).asText().equals("null")) {
-					return getRatingAverage(jsonNode.at(id).asText(),
+					return getRatingAverage(jsonNode.at(parentId).asText(),
 							PublicationType.catalog_product, true, token);
 				}
 				throw new RuntimeException();
@@ -119,7 +119,7 @@ public class InformationProductCatalog implements InformationCommercialService {
 			scope.fork(() -> {
 				if(jsonNode.at(parentId).asText().equals("null")&&jsonNode.at(childrensId).size()==0) {
 					return getRatingAverage(jsonNode.at(itemId).asText(),
-							PublicationType.catalog_product, true, token);
+							PublicationType.catalog_product, false, token);
 				}
 				throw new RuntimeException();
 			});

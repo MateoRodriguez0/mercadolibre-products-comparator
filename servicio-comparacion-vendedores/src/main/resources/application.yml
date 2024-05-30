@@ -5,3 +5,12 @@ spring:
 server:
   port: 9097
  
+
+json: 
+  properties:
+   item:
+    id: /id
+   product_catalog:
+    id: /id
+    parent: /parent_id
+    children_ids: /children_ids

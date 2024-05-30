@@ -60,7 +60,7 @@ public class CompartionServiceImpl implements ComparationService{
 							seller.getPublication_id(),s.getExperience()));
 
 					comarative.getMercadoLider_level().add(new InfoSeller(
-							seller.getPublication_id(),s.getMercadoLider_level()));
+							seller.getPublication_id(),getMercadoLider(s.getMercadoLider_level())));
 					
 					comarative.getNegative_rating().add(new InfoSeller(
 							seller.getPublication_id(),(int)(s.getNegative_rating()*100)+"%"));
@@ -93,6 +93,10 @@ public class CompartionServiceImpl implements ComparationService{
 		return seller.getResponse_time();
 	}
 	
+	private String getMercadoLider(String lider) {
+		return lider==null?"-": lider;
+		
+	}
 	private String getclaims(JsonNode metrics) {
 		String period=metrics.at(claimsPeriod).asText().replace("days", "dias");
 		String total=metrics.at(totalClaims).asText().length()!=0?
