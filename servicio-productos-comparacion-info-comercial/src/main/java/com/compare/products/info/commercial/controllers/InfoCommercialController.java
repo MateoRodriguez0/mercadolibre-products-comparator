@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -14,7 +14,7 @@ import com.compare.products.info.commercial.services.ComparationServices;
 @RestController
 public class InfoCommercialController {
 
-	@GetMapping(value = "/compare/info-commercial",headers = "Authorization")
+	@PostMapping(value = "/compare/info-commercial",headers = "Authorization")
 	public ResponseEntity<?> getComparaison(@RequestBody List<Publication> publications){
 		return ResponseEntity.ok(comparationServices.compare(publications));
 	}
