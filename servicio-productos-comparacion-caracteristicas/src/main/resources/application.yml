@@ -5,7 +5,4 @@ spring:
     virtual:
       enabled: true
 server:
-  port: 9093
-  
-  
-             
+  port: 9093             

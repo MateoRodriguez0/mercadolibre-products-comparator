@@ -137,18 +137,18 @@ public class CharacteristicsServiceImpl implements CharacteristicsService  {
 				ArrayNode atts=null;
 				if(publ.getPublicationType()==PublicationType.catalog_product) {
 					atts=client.getAttributesByCategory(publ.getPublication()
-							.at("/buy_box_winner/category_id").asText())
+							.at(productCategoryId).asText())
 							.getBody().deepCopy();
 				}
 				else{
 					atts=client.getAttributesByCategory(publ.getPublication()
-							.at("/category_id").asText())
+							.at(itemCategoryId).asText())
 							.getBody().deepCopy();
 				}
 				for (JsonNode at : atts) {
-					if (at.at("/hierarchy").asText().equals("ITEM") ||
-							at.at("/hierarchy").asText().equals("PRODUCT_IDENTIFIER")
-							|| at.at("/hierarchy").asText().equals("CHILD_PK")) {
+					if (at.at(hierarchyCategory).asText().equals("ITEM") ||
+							at.at(hierarchyCategory).asText().equals("PRODUCT_IDENTIFIER")
+							|| at.at(hierarchyCategory).asText().equals("CHILD_PK")) {
 					 	atri.put(at.at("/id").asText(), null);
 
 					 	
@@ -182,6 +182,16 @@ public class CharacteristicsServiceImpl implements CharacteristicsService  {
 	
 	@Autowired
 	private ApiCategoriesClient client;
+	
+	@Value("${json.properties.item.category_id}")
+	private String itemCategoryId;
+	
+	@Value("${json.properties.categories.attributes.hierarchy}")
+	private String hierarchyCategory;
+
+	@Value("${json.properties.product_catalog.category_id}")
+	private String productCategoryId;
+	
 
 	@Value("${json.properties.technical_specs.attribute.label}")
 	private String labelAttribute;
