@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.StructuredTaskScope;
+import java.util.concurrent.StructuredTaskScope.Subtask;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -20,8 +21,11 @@ import com.compare.products.characteristics.clients.ApiCategoriesClient;
 import com.compare.products.characteristics.models.Attribute;
 import com.compare.products.characteristics.models.Group;
 import com.compare.products.characteristics.models.Publication;
+import com.compare.products.characteristics.models.PublicationType;
 import com.compare.products.characteristics.services.CharacteristicsService;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+
 
 @Service
 @Scope("prototype")
@@ -91,18 +95,26 @@ public class CharacteristicsServiceImpl implements CharacteristicsService  {
 	    Map<String, Boolean> shared = new HashMap<>();
 	    attr.forEach(att ->shared.put(att.getName(), true) );
 	    List<Attribute> attributes=new ArrayList<>();
-	    for (JsonNode at : getCharacteristics(publ)) {
-	    	String id=at.at(idAttribute).asText();
-	        if(!filterAttributes(id)){
-	    		if (!shared.containsKey(at.at(nameAttribute).asText())){
-	    			Attribute attribute= Attribute.builder()
-							.name(at.at(nameAttribute).asText())
-							.value(at.at(valueName).asText())
-							.build();
-					attributes.add(attribute);
-		        }
-	    	}
-	    } 
+	    try(var scope= new StructuredTaskScope<>()){
+	    	Subtask<JsonNode> task1= scope.fork(() ->getCharacteristics(publ));
+	    	Subtask<Map<String, String>> task2= scope.fork(() -> getIgnoreAttributes(publ));
+	    	scope.join();
+	    	for (JsonNode at : task1.get()) {
+		    	String id=at.at(idAttribute).asText();
+		    	 if(!filterAttributes(id)&& ! task2.get().containsKey(at.at("/id").asText())){
+		    		if (!shared.containsKey(at.at(nameAttribute).asText())){
+		    			Attribute attribute= Attribute.builder()
+								.name(at.at(nameAttribute).asText())
+								.value(at.at(valueName).asText())
+								.build();
+						attributes.add(attribute);
+			        }
+		    	}
+		    } 
+	    } catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	    
 	    return attributes;
 	}
 	
@@ -116,6 +128,41 @@ public class CharacteristicsServiceImpl implements CharacteristicsService  {
 		return attribute;
 		
 	}
+	
+
+	private Map<String, String> getIgnoreAttributes(Publication publ){
+		Map<String, String> atri= new HashMap<>();
+		try(var scope= new StructuredTaskScope<>() ){
+			scope.fork(() -> {
+				ArrayNode atts=null;
+				if(publ.getPublicationType()==PublicationType.catalog_product) {
+					atts=client.getAttributesByCategory(publ.getPublication()
+							.at("/buy_box_winner/category_id").asText())
+							.getBody().deepCopy();
+				}
+				else{
+					atts=client.getAttributesByCategory(publ.getPublication()
+							.at("/category_id").asText())
+							.getBody().deepCopy();
+				}
+				for (JsonNode at : atts) {
+					if (at.at("/hierarchy").asText().equals("ITEM") ||
+							at.at("/hierarchy").asText().equals("PRODUCT_IDENTIFIER")
+							|| at.at("/hierarchy").asText().equals("CHILD_PK")) {
+					 	atri.put(at.at("/id").asText(), null);
+
+					 	
+					}
+				}
+				return true;
+				});
+			scope.join();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		return atri;
+	}
+	
 	
 	public JsonNode searchSpecifications(String id) {
 		ResponseEntity<JsonNode> response=client.technicalSpecs(id);

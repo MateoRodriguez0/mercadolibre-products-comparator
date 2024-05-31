@@ -12,5 +12,8 @@ public interface ApiCategoriesClient {
 	
 	@GetMapping(value = "${compare.products.paths.technical_espec.output}")
 	public ResponseEntity<JsonNode> technicalSpecs(@PathVariable(name = "id")String id);
+	
+	@GetMapping(value = "${compare.products.paths.attributes-category}")
+	public ResponseEntity<JsonNode> getAttributesByCategory(@PathVariable(name = "id")String id);
 
 }
