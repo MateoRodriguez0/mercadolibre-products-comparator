@@ -35,24 +35,20 @@ public class SellerServicesImpl implements SellerServices {
 	@Override
 	public Seller getSellerById(String id,String[] items) {
 		authorizathionService.SetToken(request.getHeader("Authorization"));
-		
 		Seller seller= new Seller();
 		 
 		try(var scope= new StructuredTaskScope<>()){
 			Subtask<String> time=scope.fork(() ->responseTime
 					.timeOfResponseBySeller(items));
 			Subtask<ObjectNode> taskApi1=scope.fork(()->sellerClients.userById(id).getBody());
-		
-			
 			scope.join();
+			
 			ObjectNode sellerJson=taskApi1.get();
-			
 			ObjectNode SalesForsellerJson=sellerClients
-					.salesBysellers(sellerJson.get("site_id").asText(),id)
+					.salesBysellers(sellerJson.at(userCityId).asText(),id)
 					.getBody();
-					
 			Subtask<String> location=scope.fork(() ->setLocation(sellerJson));
-			
+		
 			scope.fork(() -> {
 				setInfo(SalesForsellerJson,seller);
 				return null;
@@ -63,27 +59,21 @@ public class SellerServicesImpl implements SellerServices {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		
-		
 		return seller;
 	}
 	
-	
 	public String setLocation(ObjectNode sellerJson) {
-		String city= sellerJson.get("address").get("city").asText();
+		String city= sellerJson.at(userCityAddress).asText();
 		String state= sellerClients
-				.getInfoByStateId(sellerJson.get("address").get("state").asText())
+				.getInfoByStateId(sellerJson.at(userStateAddress).asText())
 				.getBody()
-				.get("name").asText();
+				.at(stateName).asText();
 				
 		return city.concat(", ").concat(state).concat(".");
 	}
 	
 	public void setInfo(ObjectNode sellerJson,Seller seller) {
-		JsonNode sellerNode=sellerJson.get("seller");
-		JsonNode reputationNode=sellerNode.get("seller_reputation");
-		JsonNode metricsNode =reputationNode.get("metrics");
-		JsonNode ratingNode =reputationNode.get("transactions").get("ratings");
+		JsonNode reputationNode=sellerJson.at(reputationSeller);
 		
 		try(var scope= new StructuredTaskScope<>()){
 			scope.fork(() ->{
@@ -91,19 +81,19 @@ public class SellerServicesImpl implements SellerServices {
 				return null;
 			});
 			scope.fork(() ->{
-				seller.setId(sellerNode.get("id").asText());
-				seller.setNickname(sellerNode.get("nickname").asText());
-				seller.setPermalink(sellerNode.get("permalink").asText());
-				seller.setMetrics(metricsNode);
-				seller.setTotal_transactions(reputationNode.get("transactions").get("completed").asInt());;
-				seller.setNegative_rating(ratingNode.get("negative").asDouble());
-				seller.setNeutral_rating(ratingNode.get("neutral").asDouble());
-				seller.setPositive_rating(ratingNode.get("positive").asDouble());
+				seller.setId(sellerJson.at(sellerId).asText());
+				seller.setNickname(sellerJson.at(sellerNickname).asText());
+				seller.setPermalink(sellerJson.at(sellerPermalink).asText());
+				seller.setMetrics(sellerJson.at(sellerMetrics));
+				seller.setTotal_transactions(sellerJson.at(completedTransactions).asInt());;
+				seller.setNegative_rating(sellerJson.at(negativeRating).asDouble());
+				seller.setNeutral_rating(sellerJson.at(neutralRating).asDouble());
+				seller.setPositive_rating(sellerJson.at(positiveRating).asDouble());
 				return null;
 			});
 			scope.fork(() ->{
-				if(reputationNode.get("power_seller_status").asText()!="null") {
-					seller.setMercadoLider_level(reputationNode.get("power_seller_status").asText());
+				if(reputationNode.at(sellerPowerStatus).asText()!="null") {
+					seller.setMercadoLider_level(reputationNode.at(sellerPowerStatus).asText());
 				}
 				return null;
 			});
@@ -115,10 +105,10 @@ public class SellerServicesImpl implements SellerServices {
 	
 	
 	public void setExperience(ObjectNode sellerJson,Seller seller) {
-		Period experience= DatesUtil.compareDates(sellerJson.get("seller").get("registration_date")
+		Period experience= DatesUtil.compareDates(sellerJson.at(registrationDate)
 				.asText(),
 				LocalDate.now().toString(),
-				sellerJson.get("country_default_time_zone").asText());
+				sellerJson.at(sellerZoneId).asText());
 		
         int years = experience.getYears();
         int months = experience.getMonths();
@@ -141,16 +131,73 @@ public class SellerServicesImpl implements SellerServices {
         	if(days >1 )
         		seller.setExperience(days+" dias");
         	else
-        		seller.setExperience("nuevo");
+        		seller.setExperience(whitoutExperience);
         	
         }
-        seller.setExperience(seller.getExperience()+" vendiendo en Mercado Libre");
+        seller.setExperience(seller.getExperience()+" "+experiencePhrase);
         
         }
 	
 
+	@Value("${compare.products.experience-seller-response.without-experience}")
+	private String whitoutExperience;
+	
 	@Value("${compare.products.api.version}")
 	private String api_version;
+	
+	@Value("${json.properties.info-user.site_id}")
+	private String userCityId;
+	
+	@Value("${json.properties.info-state.name}")
+	private String stateName;
+	
+	@Value("${json.properties.reputation-seller.zone-id}")
+	private String sellerZoneId;
+	
+	@Value("${json.properties.reputation-seller.metrics}")
+	private String sellerMetrics;
+	
+	@Value("${json.properties.reputation-seller.registration_date}")
+	private String registrationDate;
+
+	@Value("${json.properties.reputation-seller.transactions-completed}")
+	private String completedTransactions;
+	
+	@Value("${json.properties.reputation-seller.reputation}")
+	private String reputationSeller;
+	
+	@Value("${json.properties.reputation-seller.negative-rating}")
+	private String negativeRating;
+	
+	@Value("${json.properties.reputation-seller.positive-rating}")
+	private String positiveRating;
+	
+	@Value("${json.properties.reputation-seller.neutral-rating}")
+	private String neutralRating;
+	
+	@Value("${json.properties.reputation-seller.power_seller_status}")
+	private String sellerPowerStatus;
+	
+	@Value("${json.properties.reputation-seller.id}")
+	private String sellerId;
+	
+	@Value("${json.properties.reputation-seller.nickname}")
+	private String sellerNickname;
+
+	@Value("${json.properties.reputation-seller.permalink}")
+	private String sellerPermalink;
+
+	@Value("${json.properties.user.address.state}")
+	private String userStateAddress;
+	
+	@Value("${json.properties.user.address.city}")
+	private String userCityAddress;
+
+	@Value("${compare.products.experience-seller-response.phrase}")
+	private String experiencePhrase;
+	
+	
+	
 	@Autowired
 	private SellerFeignClient sellerClients;
 	
