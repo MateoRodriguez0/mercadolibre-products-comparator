@@ -1,6 +1,8 @@
 spring:
   application:
     name: servicio-productos-comparacion-info-comercial
+server:
+  port: 0
     
 
 

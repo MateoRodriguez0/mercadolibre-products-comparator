@@ -11,9 +11,6 @@ spring:
     import: 'optional:configserver:'
   cloud:
     config:
-      discovery:
-        enabled: true
-        service-id: config-server
       username: config
       password: config
   profiles:
