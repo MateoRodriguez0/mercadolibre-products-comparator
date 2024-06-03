@@ -49,7 +49,7 @@ public class CategoryService {
 				e.printStackTrace();
 			}
 	
-		return details.parallelStream()
+		return details.stream()
 				.filter(d ->d.isIn_products())
 				.toList()
 				.size()==categories.length;

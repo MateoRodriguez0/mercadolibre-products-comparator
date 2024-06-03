@@ -2,13 +2,16 @@ package com.compare.products.services;
 
 import java.util.List;
 
-import com.compare.products.models.ItemDetails;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.EnableCaching;
+
+import com.compare.products.models.Publication;
 import com.compare.products.models.PublicationComparative;
-import com.fasterxml.jackson.databind.JsonNode;
-
-
+@EnableCaching
 public interface ComparePublicationsService {
-	public PublicationComparative getComparative(List<JsonNode> nodess);
-	public List<ItemDetails> getDetails(String [] urls);
+	
+	@Cacheable(value = "comparativeProductCache")
+	public PublicationComparative getComparative(
+			List<Publication> publications)throws Exception;
 
 }

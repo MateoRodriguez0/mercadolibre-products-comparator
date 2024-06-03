@@ -9,21 +9,15 @@ spring:
     import: 'optional:configserver:'
   cloud:
     config:
-      discovery:
-        enabled: true
-        service-id: config-server
       username: config
       password: config
+  data:
+    redis:
+      host: localhost
+      port: 6379
+  
   profiles:
     active:
     - dev
-    
- 
-json: 
-  properties:
-   item:
-    category_id: /category_id  
-   product_catalog:
-     category_id: /buy_box_winner/category_id
-    
+   
      
