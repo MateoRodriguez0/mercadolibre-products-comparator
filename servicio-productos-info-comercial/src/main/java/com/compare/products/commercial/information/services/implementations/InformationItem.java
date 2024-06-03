@@ -26,70 +26,72 @@ import com.compare.products.commercial.information.services.ScrapingService;
 import com.compare.products.commercial.information.services.ShippingService;
 import com.fasterxml.jackson.databind.JsonNode;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 @Service
 @Scope("prototype")
 public class InformationItem implements InformationCommercialService {
 
 	@Override
-	public CommercialInformation getInfoCommercial(JsonNode jsonNode,String token) {
-			CommercialInformation information=new CommercialInformation();
-			ExecutorService service= Executors.newVirtualThreadPerTaskExecutor();
+	public CommercialInformation getInfoCommercial(JsonNode jsonNode) {
+		String token=request.getHeader("Authorization");
+		CommercialInformation information=new CommercialInformation();
+		ExecutorService service= Executors.newVirtualThreadPerTaskExecutor();
 		
-			CompletableFuture<Document> taskPermalink=CompletableFuture.supplyAsync(() ->
-				scrapingService.getDocument(jsonNode.at(permalink).asText()),service);
-			CompletableFuture<String> taskAvailables=CompletableFuture.supplyAsync(() ->
-				scrapingService.getAvailables(taskPermalink),service);
+		CompletableFuture<Document> taskPermalink=CompletableFuture.supplyAsync(() ->
+			scrapingService.getDocument(jsonNode.at(permalink).asText()),service);
+		CompletableFuture<String> taskAvailables=CompletableFuture.supplyAsync(() ->
+			scrapingService.getAvailables(taskPermalink),service);
 	
-			CompletableFuture<String> taskTotalSales=CompletableFuture.supplyAsync(() ->
-				scrapingService.getSales(taskPermalink),service);
+		CompletableFuture<String> taskTotalSales=CompletableFuture.supplyAsync(() ->
+			scrapingService.getSales(taskPermalink),service);
+		
+		CompletableFuture<Shipping> taskShipping=CompletableFuture.supplyAsync(() ->
+			getShipping(jsonNode,token),service);
+		
+		CompletableFuture<String> taskPayments=CompletableFuture.supplyAsync(() ->
+			paymentMethodsService.findPaymentMethods(token, jsonNode.at(siteId).asText())
+			,service);
 			
-			CompletableFuture<Shipping> taskShipping=CompletableFuture.supplyAsync(() ->
-				getShipping(jsonNode,token),service);
-			
-			CompletableFuture<String> taskPayments=CompletableFuture.supplyAsync(() ->
-				paymentMethodsService.findPaymentMethods(token, jsonNode.at(siteId).asText())
-				,service);
-			
-			CompletableFuture<Double> taskRating=CompletableFuture.supplyAsync(() ->
-				client.getRatingAverage(jsonNode.at(itemId).asText(), 
+		CompletableFuture<Double> taskRating=CompletableFuture.supplyAsync(() ->
+			client.getRatingAverage(jsonNode.at(itemId).asText(), 
 							PublicationType.item, false, token).getBody());
 			
-			CompletableFuture.runAsync(() ->{
-				information.setDiscount_porcentage(getDiscount(jsonNode));
-				information.setPrice(jsonNode.at(ItemPrice).asDouble());
-				information.setCurrency_id(jsonNode.at(currency).asText());
-				information.setInternational_delivery_mode(jsonNode.at(international).asText());
-		
+		CompletableFuture.runAsync(() ->{
+			information.setDiscount_porcentage(getDiscount(jsonNode));
+			information.setPrice(jsonNode.at(ItemPrice).asDouble());
+			information.setCurrency_id(jsonNode.at(currency).asText());
+			information.setInternational_delivery_mode(jsonNode.at(international).asText());
 			},service); 
 			
-			CompletableFuture.runAsync(() ->{
-				for (JsonNode atr : jsonNode.at(attributes)) {
-					if(atr.get("id").asText().equals(brandId)) {
-						information.setBrand(atr.at(brandName).asText());
-						break;
-						}
+		CompletableFuture.runAsync(() ->{
+			for (JsonNode atr : jsonNode.at(attributes)) {
+				if(atr.get("id").asText().equals(brandId)) {
+					information.setBrand(atr.at(brandName).asText());
+					break;
 					}
-				});
-			
-			CompletableFuture<Warranty> taskWarranty=CompletableFuture
-						.supplyAsync(() -> getWarranty(jsonNode),service);
-			
-			try {
-				information.setTotal_sales(taskTotalSales.get().length()!=0 ?
-						taskTotalSales.get() : null);
-				information.setAvailables(taskAvailables.get().length()!=0 ?
-						taskAvailables.get() : null);
-				information.setShipping(taskShipping.get());
-				information.setPayment_methods(taskPayments.get());
-				information.setRating_average(taskRating.get());
-				information.setWarranty(taskWarranty.get());
-				
-				if(information.getShipping()!=null) {
-					information.getShipping().setCurrency(jsonNode.at(currency).asText());
 				}
-			} catch (InterruptedException | ExecutionException e) {
-				e.printStackTrace();
+			});
+			
+		CompletableFuture<Warranty> taskWarranty=CompletableFuture
+					.supplyAsync(() -> getWarranty(jsonNode),service);
+		
+		try {
+			information.setTotal_sales(taskTotalSales.get().length()!=0 ?
+					taskTotalSales.get() : null);
+			information.setAvailables(taskAvailables.get().length()!=0 ?
+						taskAvailables.get() : null);
+			information.setShipping(taskShipping.get());
+			information.setPayment_methods(taskPayments.get());
+			information.setRating_average(taskRating.get());
+			information.setWarranty(taskWarranty.get());
+			
+			if(information.getShipping()!=null) {
+				information.getShipping().setCurrency(jsonNode.at(currency).asText());
 			}
+		} catch (InterruptedException | ExecutionException e) {
+			e.printStackTrace();
+		}
 		
 		return information;
 	}
@@ -142,6 +144,8 @@ public class InformationItem implements InformationCommercialService {
 	
 	
 	
+	@Autowired
+	private HttpServletRequest request;
 	
 	@Autowired
 	private ScrapingService scrapingService;

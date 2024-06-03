@@ -1,5 +1,6 @@
 package com.compare.products.commercial.information.services;
 
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.client.HttpClientErrorException;
 
 import com.compare.products.commercial.information.models.CommercialInformation;
@@ -9,7 +10,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 public interface InformationCommercialService {
 
-	public CommercialInformation getInfoCommercial(JsonNode jsonNode,String token) throws HttpClientErrorException ;
+	@Cacheable(value = "ProductInfoComercialCache")
+	public CommercialInformation getInfoCommercial(JsonNode jsonNode) throws HttpClientErrorException ;
 	public int getDiscount(JsonNode jsonNode);
 	public double getRatingAverage(String itemId,String token);
 	public Warranty getWarranty(JsonNode jsonNode);

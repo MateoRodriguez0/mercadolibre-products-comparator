@@ -1,5 +1,6 @@
 package com.compare.products.characteristics.models;
 
+import java.io.Serializable;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -13,7 +14,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 @Builder
-public class Attribute {
+public class Attribute implements Serializable {
+	/**
+	 *
+	 */
+	private static final long serialVersionUID = 1L;
 	@JsonIgnore
 	private String id;
 	private String name;

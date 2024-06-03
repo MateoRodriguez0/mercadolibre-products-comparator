@@ -12,7 +12,6 @@ public interface NameCategoryService {
 	
 	public Boolean isVehicle (JsonNode Categories) throws Exception;
 	
-	
 	public Boolean isProperty (JsonNode Categories) throws Exception;
 	
 }

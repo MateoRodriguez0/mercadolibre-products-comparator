@@ -1,5 +1,7 @@
 package com.products.compare.url.analisis.services;
 
+import org.springframework.cache.annotation.Cacheable;
+
 import com.products.compare.url.analisis.models.ItemDetails;
 
 public interface AnalisisUrlService {
@@ -19,5 +21,6 @@ public interface AnalisisUrlService {
 	 * @param url Es la direccion del producto en MercadoLibre
 	 * @return Devuelve el ItemDetails constuido con los id encontrados en la url.
 	 */
+	@Cacheable("ItemDetailsCache")
 	public ItemDetails CreateDetailsUrl(String url);
 }

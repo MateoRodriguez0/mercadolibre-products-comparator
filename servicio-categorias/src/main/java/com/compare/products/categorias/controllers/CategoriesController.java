@@ -18,13 +18,13 @@ import feign.FeignException;
 public class CategoriesController {
 
 	@GetMapping(value = "/details/{id}")
-	public ResponseEntity<?> getTypeOfPublicationByProductCategory(
+	public ResponseEntity<DetailsCategory> getTypeOfPublicationByProductCategory(
 			@PathVariable(name = "id") String categoryId) {
 		try {
 			DetailsCategory dCategory=categoryServices.getDetailsByCategory(categoryId);
 			return ResponseEntity.ok(dCategory);
 		} catch (FeignException e) {
-			return ResponseEntity.badRequest().body(e.getLocalizedMessage());
+			return ResponseEntity.badRequest().body(null);
 		}
 	}
 	

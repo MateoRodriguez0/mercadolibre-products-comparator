@@ -1,5 +1,7 @@
 package com.products.compare.vendedores.models;
 
+import java.io.Serializable;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,8 +12,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Seller {
+public class Seller implements Serializable{
 
+	/**
+	 *
+	 */
+	private static final long serialVersionUID = 1L;
 	private String id;
 	private String nickname;
 	private String permalink;

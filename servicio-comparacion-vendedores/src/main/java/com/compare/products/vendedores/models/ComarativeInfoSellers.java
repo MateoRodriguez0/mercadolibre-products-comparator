@@ -1,5 +1,6 @@
 package com.compare.products.vendedores.models;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,8 +11,8 @@ import lombok.Data;
 @AllArgsConstructor
 @Data
 @Builder
-public class ComarativeInfoSellers {
-	
+public class ComarativeInfoSellers implements Serializable{
+
 	
 	public ComarativeInfoSellers() {
 		this.links= new ArrayList<>();
@@ -27,6 +28,7 @@ public class ComarativeInfoSellers {
 		this.response_time= new ArrayList<>();
 		
 	}
+	private static final long serialVersionUID = 1L;
 	private List<InfoSeller> nickname;
 	private List<InfoSeller> links;
 	private List<InfoSeller> sales;

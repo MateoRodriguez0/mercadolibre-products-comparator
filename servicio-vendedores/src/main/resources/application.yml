@@ -6,10 +6,16 @@ spring:
       client:
         config:
           users:
-            url: https://api.mercadolibre.com
-            
+            url: ${compare.products.paths.api}
   threads:
     virtual:
       enabled: true
+  data:
+    redis:
+      host: localhost
+      port: 6379
 server:
   port: 0
+  
+
+  

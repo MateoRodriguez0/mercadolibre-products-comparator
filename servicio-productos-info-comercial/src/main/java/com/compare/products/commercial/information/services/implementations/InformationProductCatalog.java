@@ -27,73 +27,71 @@ import com.compare.products.commercial.information.services.ScrapingService;
 import com.compare.products.commercial.information.services.ShippingService;
 import com.fasterxml.jackson.databind.JsonNode;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 
 @Service
 @Scope("prototype")
 public class InformationProductCatalog implements InformationCommercialService {
 	
 	@Override
-	public CommercialInformation getInfoCommercial(JsonNode jsonNode,String token) {
-			CommercialInformation information=new CommercialInformation();
-			ExecutorService service= Executors.newVirtualThreadPerTaskExecutor();
-			
-			CompletableFuture<Document> taskPermalink=CompletableFuture.supplyAsync(() ->
-				 scrapingService.getDocument(jsonNode.at(permalink).asText()),service);
-		
-			CompletableFuture<Shipping> taskShipping=CompletableFuture.supplyAsync(() ->
-				getShipping(jsonNode,token),service);
-			
-			CompletableFuture<String> taskPayments=CompletableFuture.supplyAsync(() ->
-				paymentMethodsService.findPaymentMethods(token,jsonNode.at(siteId).asText())
-				,service);
-			
-			CompletableFuture<Double> taskRating=CompletableFuture.supplyAsync(() ->
-			  getRating(jsonNode, token),service);
-			
-			CompletableFuture<String> taskAvailables=CompletableFuture.supplyAsync(() ->
-				scrapingService.getAvailables(taskPermalink),service);
-			
-			CompletableFuture<String> taskTotalSales=CompletableFuture.supplyAsync(() ->
-				scrapingService.getSales(taskPermalink),service);
-			
-			
-			CompletableFuture.runAsync(() ->{
-				information.setDiscount_porcentage(getDiscount(jsonNode));
-				information.setPrice(jsonNode.at(ProductPrice).asDouble());
-				information.setCurrency_id(jsonNode.at(currency).asText());
-				information.setInternational_delivery_mode(jsonNode.at(international).asText());
-				},service); 
-			
-			CompletableFuture.runAsync(() ->{
-				for (JsonNode atr : jsonNode.at(attributes)) {
-					if(atr.get("id").asText().equals(brandId)) {
-						information.setBrand(atr.at(brandName).asText());
-						break;
-						}
-					}
-				});
-			
-			CompletableFuture<Warranty> taskWarranty=CompletableFuture
-						.supplyAsync(() -> getWarranty(jsonNode),service);
+	public CommercialInformation getInfoCommercial(JsonNode jsonNode) {
+		String token = request.getHeader("Authorization");
+		CommercialInformation information = new CommercialInformation();
+		ExecutorService service = Executors.newVirtualThreadPerTaskExecutor();
 
-			
-			
-			try {
-				information.setShipping(taskShipping.get());
-				information.setPayment_methods(taskPayments.get());
-				information.setTotal_sales(taskTotalSales.get().length()!=0 ?
-						taskTotalSales.get() : null);
-				information.setAvailables(taskAvailables.get().length()!=0 ?
-						taskAvailables.get() : null);
-				information.setWarranty(taskWarranty.get());
-				information.setRating_average(taskRating.get());
-				
-				if(information.getShipping()!=null) {
-					information.getShipping().setCurrency(jsonNode.at(currency).asText());
+		CompletableFuture<Document> taskPermalink = CompletableFuture.supplyAsync(() -> 
+			scrapingService.getDocument(jsonNode.at(permalink).asText()), service);
+
+		CompletableFuture<Shipping> taskShipping = CompletableFuture.supplyAsync(() -> 
+			getShipping(jsonNode, token),service);
+
+		CompletableFuture<String> taskPayments = CompletableFuture.supplyAsync(() -> 
+			paymentMethodsService.findPaymentMethods(token, jsonNode.at(siteId).asText()), service);
+
+		CompletableFuture<Double> taskRating = CompletableFuture.supplyAsync(() -> 
+			getRating(jsonNode, token), service);
+
+		CompletableFuture<String> taskAvailables = CompletableFuture
+				.supplyAsync(() -> scrapingService.getAvailables(taskPermalink), service);
+
+		CompletableFuture<String> taskTotalSales = CompletableFuture
+				.supplyAsync(() -> scrapingService.getSales(taskPermalink), service);
+
+		CompletableFuture.runAsync(() ->{
+			information.setDiscount_porcentage(getDiscount(jsonNode));
+			information.setPrice(jsonNode.at(ProductPrice).asDouble());
+			information.setCurrency_id(jsonNode.at(currency).asText());
+			information.setInternational_delivery_mode(jsonNode.at(international).asText());
+			},service); 
+		
+		CompletableFuture.runAsync(() ->{
+			for (JsonNode atr : jsonNode.at(attributes)) {
+				if(atr.get("id").asText().equals(brandId)) {
+					information.setBrand(atr.at(brandName).asText());
+					break;
+					}
 				}
-			} catch (InterruptedException | ExecutionException e) {
-				e.printStackTrace();
+			});
+			
+		CompletableFuture<Warranty> taskWarranty=CompletableFuture
+					.supplyAsync(() -> getWarranty(jsonNode),service);
+		try {
+			information.setShipping(taskShipping.get());
+			information.setPayment_methods(taskPayments.get());
+			information.setTotal_sales(taskTotalSales.get().length()!=0 ?
+					taskTotalSales.get() : null);
+			information.setAvailables(taskAvailables.get().length()!=0 ?
+					taskAvailables.get() : null);
+			information.setWarranty(taskWarranty.get());
+			information.setRating_average(taskRating.get());
+				
+			if(information.getShipping()!=null) {
+				information.getShipping().setCurrency(jsonNode.at(currency).asText());
 			}
+		} catch (InterruptedException | ExecutionException e) {
+			e.printStackTrace();
+		}
 		
 		return information;
 	
@@ -181,7 +179,9 @@ public class InformationProductCatalog implements InformationCommercialService {
 	
 	@Autowired
 	private ScrapingService scrapingService;
-	
+
+	@Autowired
+	private HttpServletRequest request;
 
 	@Autowired
 	private RatingClient client;

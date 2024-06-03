@@ -1,5 +1,7 @@
 package com.compare.products.commercial.information.models;
 
+import java.io.Serializable;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,8 +11,9 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class CommercialInformation {
+public class CommercialInformation implements Serializable{
 	
+	private static final long serialVersionUID = 1L;
 	private String brand;
 	private double price;
 	private int discount_porcentage;
