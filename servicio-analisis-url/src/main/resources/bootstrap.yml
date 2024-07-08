@@ -7,11 +7,12 @@ spring:
     import: 'optional:configserver:'
   cloud:
     config:
-      username: config 
-      password: config
+      uri: ${CONFIG_uri:http://localhost:8888}
+      username: ${CONFIG_USERNAME:config}  
+      password: ${CONFIG_PASSWORD:config} 
 eureka:
   client:
     service-url:
-      defaultZone: http://eurekaclient:eurekaclient@localhost:8761/eureka
+      defaultZone: ${DISCOVERY_URI}
   instance:
     instance-id: ${spring.application.name}:${random.value}

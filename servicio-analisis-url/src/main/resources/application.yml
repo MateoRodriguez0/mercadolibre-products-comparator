@@ -1,11 +1,31 @@
 spring:
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      username: ${REDIS_USERNAME:user}
+      password: ${REDIS_PASSWORD:pass}
+      ssl:
+        enabled: true
+  cloud:
+    bus:
+      enabled: true
+      refresh:
+        enabled: true
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
   threads:
     virtual:
       enabled: true
-  data:
-    redis:
-      host: localhost
-      port: 6379
-        
+management:
+  security:
+    enabled: false   
+  endpoints:
+    web:
+      exposure:
+        include: "*"
 server:
-  port: 9876
+  port: 8080

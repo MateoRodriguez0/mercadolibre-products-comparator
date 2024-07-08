@@ -1,6 +1,8 @@
 package com.products.compare.url.analisis.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,6 +20,7 @@ import com.products.compare.url.analisis.services.AnalisisUrlService;
  * 12 feb. 2024 4:44:45 p. m.
  */
 @RestController
+@RefreshScope
 public class AnalisisUrlController {
 
 	/**
@@ -39,9 +42,16 @@ public class AnalisisUrlController {
 	    			.body(null);	
 		}
 	
+	@GetMapping(value="/prop")
+	public String getprop() {
+		return prop;	
+		}
+	
 	 @Autowired
-	 //@Qualifier("analsisUrlCompletableFuture")
 	 private AnalisisUrlService analisisUrlServiceient;
+	 
+	 @Value("${config.prueba}")
+	 private String prop;
 
 	
 }

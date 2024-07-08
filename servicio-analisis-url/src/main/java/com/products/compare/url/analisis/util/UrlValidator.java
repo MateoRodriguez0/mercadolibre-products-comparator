@@ -15,14 +15,6 @@ public class UrlValidator{
 	  * @return Devuelve true si la pagina existe o false si no;
 	  */
 	 public boolean resourceFound(String url,String regex) {
-		
 		return url.matches(regex);
-		
-		
-	
-
-	 }
-
-	 
-	 
+	 } 
 }

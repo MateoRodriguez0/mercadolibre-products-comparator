@@ -8,16 +8,16 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.StructuredTaskScope;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
-import com.products.compare.url.analisis.clients.MercadoLibreSitesClient;
 import com.products.compare.url.analisis.models.ItemDetails;
 import com.products.compare.url.analisis.services.AnalisisUrlService;
+import com.products.compare.url.analisis.services.PaisService;
 import com.products.compare.url.analisis.util.UrlValidator;
 /**
  * Clase de servicio para busqueda de codigo de item o 
@@ -28,6 +28,7 @@ import com.products.compare.url.analisis.util.UrlValidator;
  */
 @Service
 @Primary
+@RefreshScope
 public class AnalisisUrlServiceImpl implements AnalisisUrlService {
 
 	@Override
@@ -39,9 +40,7 @@ public class AnalisisUrlServiceImpl implements AnalisisUrlService {
 	}
 
 	 
-	 @Value("${compare.products.regex-url}")
-	 private String regex;
-
+	
 	@Override
 	public ItemDetails CreateDetailsUrl(String url) {
 		try {
@@ -58,10 +57,14 @@ public class AnalisisUrlServiceImpl implements AnalisisUrlService {
 							String code = serchCodeForUrl(url,paises.get());
 							
 							if(code.contains("-")) {
-								return new ItemDetails(code.replace("-",""),null);
+								return ItemDetails.builder()
+										.id(code.replace("-",""))
+										.build();
 							}
 							else {
-								return new ItemDetails(null, code.replace("#", ""));
+								return ItemDetails.builder()
+										.catalog_product_id(code.replace("#", ""))
+										.build();
 							}
 						} catch (InterruptedException | ExecutionException e) {
 							return null;
@@ -134,17 +137,13 @@ public class AnalisisUrlServiceImpl implements AnalisisUrlService {
 	 * @return devuelve una lista que contiene los codigos de los paises.
 	 */
 	private List<String> getPaises(){
-		return client.getPaises()
-				.parallelStream()
-				.map(j ->j.get("id").asText())
-				.collect(Collectors.toList());
+		return paisService.getPaises();
 	}
 	
 	
-	 @Autowired
-	 private MercadoLibreSitesClient client;
-
-
-	 
-	 
+	@Autowired
+	private PaisService paisService;
+	
+	@Value("${compare.products.regex-url}")
+	private String regex;	 
 }

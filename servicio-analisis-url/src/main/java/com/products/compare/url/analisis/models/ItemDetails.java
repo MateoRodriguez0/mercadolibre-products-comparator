@@ -25,4 +25,5 @@ public class ItemDetails implements Serializable {
 	private String id;
 	private String catalog_product_id;
 	
+	
 }
