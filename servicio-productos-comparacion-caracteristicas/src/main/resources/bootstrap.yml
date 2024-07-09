@@ -1,17 +1,19 @@
-eureka:
-  client:
-    service-url:
-      defaultZone: http://eurekaclient:eurekaclient@localhost:8761/eureka
-  instance:
-    instance-id: ${spring.application.name}:${random.value}
 spring:
+  application:
+    name: servicio-productos-comparacion-caracteristicas
+  profiles:
+    active: 
+    - dev
   config:
     import: 'optional:configserver:'
   cloud:
     config:
-      username: config
-      password: config
-  profiles:
-    active:
-    - dev
-
+      uri: ${CONFIG_URI:http://localhost:8888}
+      username: ${CONFIG_USERNAME:confgi}  
+      password: ${CONFIG_PASSWORD:config} 
+eureka:
+  client:
+    service-url:
+      defaultZone: ${DISCOVERY_URI}
+  instance:
+    instance-id: ${spring.application.name}:${random.value}

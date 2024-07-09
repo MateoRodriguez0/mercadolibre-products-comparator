@@ -1,8 +1,18 @@
 spring:
   application:
     name: servicio-productos-comparacion-info-comercial
+  cloud:
+    bus:
+      enabled: true
+      refresh:
+        enabled: true
 server:
   port: 0
     
-
-
+management:
+  security:
+    enabled: false   
+  endpoints:
+    web:
+      exposure:
+        include: "*"
