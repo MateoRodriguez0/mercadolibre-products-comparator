@@ -3,6 +3,19 @@ spring:
     name: servicio-categorias
   threads:
     virtual:
-      enabled: true     
+      enabled: true
+  cloud:
+    bus:
+      enabled: true
+      refresh:
+        enabled: true     
 server:
   port: 0
+
+management:
+  security:
+    enabled: false   
+  endpoints:
+    web:
+      exposure:
+        include: "*"

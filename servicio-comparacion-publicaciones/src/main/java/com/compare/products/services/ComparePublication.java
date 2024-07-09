@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.concurrent.StructuredTaskScope;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -13,6 +14,7 @@ import com.compare.products.clients.AnalisisUrlClient;
 import com.compare.products.clients.MercadolibreFeignClient;
 import com.compare.products.models.ItemDetails;
 import com.compare.products.models.Publication;
+import com.compare.products.models.PublicationComparative;
 import com.compare.products.models.PublicationType;
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -39,7 +41,10 @@ public class ComparePublication {
 					.map(p ->p.getPublication()).toList());
 			if (areProducts) {
 				try {
-					return service.getComparative(publications);
+					PublicationComparative cacheValue=service.getComparative(publications);
+					cacheManager.getCache("comparativeProductCache")
+					 .put(urls, cacheValue);
+					return cacheValue;
 				} catch (Exception e) {
 					e.printStackTrace();
 					return "INTERNAL_SERVER_ERROR";
@@ -110,8 +115,6 @@ public class ComparePublication {
 		
 	}
 	
-	
-	
 	@Autowired
 	private CategoryService categoryService;
 	
@@ -126,4 +129,6 @@ public class ComparePublication {
 	@Autowired
 	private AnalisisUrlClient urlClient;
 	
+	@Autowired
+	private CacheManager cacheManager;	
 }

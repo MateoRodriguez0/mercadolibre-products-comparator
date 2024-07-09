@@ -21,7 +21,7 @@ public class RedisConfig {
 			    .transactionAware()
 			    .withInitialCacheConfigurations(Collections.singletonMap("comparativeProductCache",
 			        RedisCacheConfiguration.defaultCacheConfig()
-			        .entryTtl(Duration.ofMinutes(30))
+			        .entryTtl(Duration.ofMinutes(10))
 			        .serializeValuesWith(SerializationPair.fromSerializer(
 			        		new GenericJackson2JsonRedisSerializer()))))
 			    .build();

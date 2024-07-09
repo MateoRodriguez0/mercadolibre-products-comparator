@@ -21,8 +21,10 @@ public class SellersComparationController {
 			@RequestHeader(name = "Authorization") String token){
 		
 		try {
+
 			return ResponseEntity.ok(comparationService.compare(sellers));
 		} catch (InterruptedException e) {
+			e.printStackTrace();
 			return ResponseEntity.noContent().build();
 		}
 	}

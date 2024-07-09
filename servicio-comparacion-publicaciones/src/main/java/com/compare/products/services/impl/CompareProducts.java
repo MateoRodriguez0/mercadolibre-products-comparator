@@ -29,7 +29,8 @@ import jakarta.servlet.http.HttpServletRequest;
 public class CompareProducts implements ComparePublicationsService {
 
 	@Override
-	public PublicationComparative getComparative(List<Publication> publications)throws Exception {
+	public PublicationComparative getComparative(List<Publication> publications)
+			throws Exception {
 		String token= request.getHeader("Authorization");
 		PublicationComparative comparative= new PublicationComparative();
 		try(var scope= new StructuredTaskScope<JsonNode>()){
@@ -41,7 +42,6 @@ public class CompareProducts implements ComparePublicationsService {
 			comparative.setSpecifications(task1.get());
 			comparative.setInfo_sellers(task2.get());
 			comparative.setInfo_comercial(task3.get());
-			
 		}
 		return comparative;
 	}
@@ -71,6 +71,7 @@ public class CompareProducts implements ComparePublicationsService {
 						seller.setId(p.getPublication().at(sellerItem).asText());
 					}
 					sellers.add(seller);
+					System.out.println(seller);
 					return true;
 				});
 			}

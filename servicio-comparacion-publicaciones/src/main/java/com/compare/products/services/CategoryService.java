@@ -48,7 +48,7 @@ public class CategoryService {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-	
+
 		return details.stream()
 				.filter(d ->d.isIn_products())
 				.toList()

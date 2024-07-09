@@ -3,7 +3,7 @@ package com.compare.products.controllers;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.CacheManager;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,15 +19,16 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 @RequestMapping(value = "/compare")
 public class ComparePublicationsController {
 
-	@GetMapping(value = "/")
-	public String getconfig() {
-	 return c;	
-	}
-	 
 	  
 	@GetMapping(value = "/products", headers = "Authorization")
 	public ResponseEntity<?> getComparaisonByUrlsOfPublications(
 				@RequestParam(name = "urls") String[] urls){
+		
+		if(cacheManager.getCache("comparativeProductCache").get(urls)!=null) {
+			return ResponseEntity.ok(cacheManager
+					.getCache("comparativeProductCache")
+					.get(urls,PublicationComparative.class));
+		}
 		
 		Object body= comparePublication.comparisonAttempt(urls);
 		if(body instanceof PublicationComparative) {
@@ -43,7 +44,7 @@ public class ComparePublicationsController {
 	@Autowired
 	private ComparePublication comparePublication;
 	
-	@Value("${config.prueba}")
-	private String c;
+	@Autowired
+	private CacheManager cacheManager;
 }
 
