@@ -8,7 +8,7 @@ spring:
     import: 'optional:configserver:'
   cloud:
     config:
-      uri: ${CONFIG_URI:http:localhost:8888}
+      uri: ${CONFIG_URI:http://localhost:8888}
       username: ${CONFIG_USERNAME:config}  
       password: ${CONFIG_PASSWORD:config} 
 eureka:
