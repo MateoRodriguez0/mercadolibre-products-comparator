@@ -19,10 +19,9 @@ public class CompatiblitiesController {
 	@GetMapping(value = "/domains")
 	public ResponseEntity<?> compatibeDomains(@RequestParam(name = "ids") String[] categories) {
 		try {
-			return new ResponseEntity<Boolean>(domainsService.areCompatibles(categories),
-					domainsService.getStatus());
+			return ResponseEntity.ok(domainsService.areCompatibles(categories));
 		} catch (Exception e) {
-			return ResponseEntity.badRequest().body(e.getMessage());
+			return ResponseEntity.internalServerError().body(e.getMessage());
 		}
 
 	}
@@ -32,7 +31,7 @@ public class CompatiblitiesController {
 		try {
 			return ResponseEntity.ok(categoryService.areCompatibles(categories));
 		} catch (Exception e) {
-			return ResponseEntity.badRequest().body(e.getMessage());
+			return ResponseEntity.internalServerError().body(e.getMessage());
 		}
 
 	}

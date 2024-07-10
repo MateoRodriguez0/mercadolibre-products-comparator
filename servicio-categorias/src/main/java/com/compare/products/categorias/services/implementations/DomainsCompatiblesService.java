@@ -46,14 +46,10 @@ public class DomainsCompatiblesService implements CategoryService {
 	@Override
 	public boolean areCompatibles(String[] ids) throws Exception {
 		domains=new AtomicReference<Set<String>>(new HashSet<>());
-		status=HttpStatus.OK;
 		try(var scope=new StructuredTaskScope<>()){
 			for (String id : ids) {
 				scope.fork(() ->{
 					JsonNode node=findCategorybyId(id);
-					if(node==null) {
-						status=HttpStatus.BAD_REQUEST;
-					}
 					domains.get().add(node.at(domain_name).asText().substring(3));
 					return null;
 				});
