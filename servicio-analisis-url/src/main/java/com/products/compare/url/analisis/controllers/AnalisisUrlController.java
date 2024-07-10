@@ -1,7 +1,6 @@
 package com.products.compare.url.analisis.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -42,16 +41,7 @@ public class AnalisisUrlController {
 	    			.body(null);	
 		}
 	
-	@GetMapping(value="/prop")
-	public String getprop() {
-		return prop;	
-		}
-	
 	 @Autowired
 	 private AnalisisUrlService analisisUrlServiceient;
-	 
-	 @Value("${config.prueba}")
-	 private String prop;
 
-	
 }

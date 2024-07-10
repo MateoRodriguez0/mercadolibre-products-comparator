@@ -14,8 +14,13 @@ spring:
   threads:
     virtual:
       enabled: true
+  rabbitmq:
+   host: ${RABBITMQ_HOST:localhost}
+   port: ${RABBITMQ_PORT:5672}
+   username: ${RABBITMQ_USERNAME:guest}
+   password: ${RABBITMQ_PASSWORD:guest}
 server:
-  port: 0
+  port: ${PORT:8080}
   
 management:
   security:
@@ -25,4 +30,3 @@ management:
       exposure:
         include: "*"
 
-  

@@ -43,7 +43,6 @@ public class ComparationServiceImpl implements ComparationServices {
 				}
 			return p.getPublication().at(productCategoryId).asText();
 		}).toArray(String[]::new);
-		
 		boolean sameDomaim=client.compatibleToCompare(ids).getBody();
 		if(!haveAttributes(publications)) {
 			return "WHIT_OUT_SPECS";

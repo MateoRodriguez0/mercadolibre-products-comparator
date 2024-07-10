@@ -9,7 +9,7 @@ spring:
   cloud:
     config:
       uri: ${CONFIG_URI:http://localhost:8888}
-      username: ${CONFIG_USERNAME:config}  
+      username: ${CONFIG_USERNAME:confgi}  
       password: ${CONFIG_PASSWORD:config} 
 eureka:
   client:

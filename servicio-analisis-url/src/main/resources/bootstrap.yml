@@ -2,13 +2,14 @@ spring:
   application:
     name: servicio-analisis-url
   profiles:
-    active: dev
+    active: 
+    - dev
   config:
     import: 'optional:configserver:'
   cloud:
     config:
-      uri: ${CONFIG_uri:http://localhost:8888}
-      username: ${CONFIG_USERNAME:config}  
+      uri: ${CONFIG_URI:http://localhost:8888}
+      username: ${CONFIG_USERNAME:confgi}  
       password: ${CONFIG_PASSWORD:config} 
 eureka:
   client:

@@ -1,12 +1,4 @@
 spring:
-  data:
-    redis:
-      host: ${REDIS_HOST:localhost}
-      port: ${REDIS_PORT:6379}
-      username: ${REDIS_USERNAME:user}
-      password: ${REDIS_PASSWORD:pass}
-      ssl:
-        enabled: true
   cloud:
     bus:
       enabled: true
@@ -28,4 +20,4 @@ management:
       exposure:
         include: "*"
 server:
-  port: 8080
+  port: ${PORT:8080}
