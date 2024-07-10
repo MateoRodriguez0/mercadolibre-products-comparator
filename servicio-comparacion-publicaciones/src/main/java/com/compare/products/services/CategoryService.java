@@ -14,9 +14,11 @@ import com.compare.products.models.DetailsCategory;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 
 @Service
 @Scope("prototype")
+@RefreshScope
 public class CategoryService {
 
 	private String [] getCategoriesFormPublications(List<JsonNode> info) {

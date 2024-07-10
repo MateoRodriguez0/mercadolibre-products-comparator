@@ -5,6 +5,7 @@ import java.util.concurrent.StructuredTaskScope;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +23,7 @@ import jakarta.servlet.http.HttpServletRequest;
 
 @Service
 @Scope("prototype")
+@RefreshScope
 public class CompartionServiceImpl implements ComparationService{
 
 	@Override

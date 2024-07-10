@@ -6,6 +6,7 @@ import java.util.concurrent.StructuredTaskScope.Subtask.State;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 @Service
 @Primary
 @Scope("prototype")
+@RefreshScope
 public class CategoryServicesImpl implements CategoryService {
 
 	@Override

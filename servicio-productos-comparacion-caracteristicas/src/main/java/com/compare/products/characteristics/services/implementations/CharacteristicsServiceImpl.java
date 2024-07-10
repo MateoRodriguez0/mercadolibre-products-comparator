@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 
 @Service
 @Scope("prototype")
+@RefreshScope
 public class CharacteristicsServiceImpl implements CharacteristicsService  {
 
 	@Override

@@ -5,12 +5,14 @@ import java.io.IOException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 
 @Service
 @Scope("prototype")
+@RefreshScope
 public class ScrapingService {
 
 	public Double getRatingAverage(String parentId) throws IOException {

@@ -7,6 +7,7 @@ import java.util.concurrent.StructuredTaskScope.Subtask;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +16,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 @Service
 @Scope("prototype")
+@RefreshScope
 public class ProductsService {
 
 	public List<String> getItemsId(JsonNode info,String token) throws InterruptedException{

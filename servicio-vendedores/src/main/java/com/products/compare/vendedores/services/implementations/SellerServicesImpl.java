@@ -8,6 +8,7 @@ import java.util.concurrent.StructuredTaskScope.Subtask;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.WebRequest;
@@ -24,6 +25,7 @@ import com.products.compare.vendedores.util.DatesUtil;
 
 @Service
 @Primary
+@RefreshScope
 public class SellerServicesImpl implements SellerServices {
 	
 	public SellerServicesImpl(WebRequest request) {

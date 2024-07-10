@@ -10,6 +10,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +24,7 @@ import com.products.compare.vendedores.util.DatesUtil;
 
 @Service
 @Scope("prototype")
+@RefreshScope
 public class ResponseTimeServicesImpl implements ResponseTimeServices {
 	
 	
