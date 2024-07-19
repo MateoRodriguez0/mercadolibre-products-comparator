@@ -1,16 +1,10 @@
-
 # Compare Products
 
 Compare products, allows you to see the similarities and differences between the compared products. This app integrates with the MercadoLibre API and allows you to compare products using the urls of the publications, compares the information of the products, sellers and other things.
 
 ## authentication and authorization
 
-In order to access the application resources, the Authentication and Authorization processes must be carried out. This way, you will be able to interact with the application on behalf of your MercadoLibre account.
-To authenticate yourself you must register with your Mercadolibre account at the following url to obtain the authorization code.
-
-
-It will redirect to the mercadolibre page to carry out the authentication process with the oauth 2.0 protocol
-![Captura de pantalla 2024-02-09 222353](https://github.com/MateoRodriguez0/mercadolibre-products-comparator/assets/107595139/b192d65a-0594-437d-b36c-03a6b09878ed)
+In order to access the application resources, the Authentication and Authorization processes must be carried out. In this way the user will be able to interact with the application in the name of their MercadoLibre account. To authenticate you must register with your Mercadolibre account and after everything is successful you will be redirected to the home page.
 
 After registering or logging in with a MercadoLibre account, you will be giving the application permissions to make requests to the MercadoLibre API on behalf of the account owner.
 
@@ -32,3 +26,18 @@ The model currently used is **Gemini 1.0 Pro**.
 
 [Servicio-categorias]()
 
+
+# performance
+
+The application uses redis cache in the cloud and concurrent programming to optimize performance and make good use of system resources, in order to avoid bottlenecks when making some product comparisons.
+
+## Recommendations
+It is not recommended to clone this repository for some reasons:
+
+- The application is dependent on some configurations that are not available in this  repository.
+- you need to have a eureka server so that microservices can be discovered.
+
+- This repository only contains a part of the logic, since it does not have the applications that make use of artificial intelligence, nor does it include the security layer.
+
+# Arquitecture
+![compareproducts-backend](https://github.com/user-attachments/assets/810c3f1d-c633-4c86-ab18-2ad59296ae75)
