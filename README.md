@@ -36,8 +36,7 @@ It is not recommended to clone this repository for some reasons:
 
 - The application is dependent on some configurations that are not available in this  repository.
 - you need to have a eureka server so that microservices can be discovered.
-
 - This repository only contains a part of the logic, since it does not have the applications that make use of artificial intelligence, nor does it include the security layer.
 
-# Arquitecture
+# Architecture
 ![compareproducts-backend](https://github.com/user-attachments/assets/810c3f1d-c633-4c86-ab18-2ad59296ae75)
