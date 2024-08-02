@@ -15,7 +15,7 @@ spring:
    username: ${RABBITMQ_USERNAME:guest}
    password: ${RABBITMQ_PASSWORD:guest}
 server:
-  port: ${PORT:8080}
+  port: 9091
  
 management:
   security:

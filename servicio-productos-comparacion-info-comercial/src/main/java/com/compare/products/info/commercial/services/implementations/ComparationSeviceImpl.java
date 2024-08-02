@@ -3,6 +3,7 @@ package com.compare.products.info.commercial.services.implementations;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.StructuredTaskScope;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -30,9 +31,8 @@ public class ComparationSeviceImpl implements ComparationServices {
 	@Override
 	public ComparativeInformationCommercial compare(List<Publication> publications) {
 		String token= request.getHeader("Authorization");
-		ComparativeInformationCommercial comparative=
-							new ComparativeInformationCommercial();
-		List<CommercialInformation> informations= new ArrayList<>();
+		AtomicReference<ComparativeInformationCommercial>comparative= new AtomicReference<>(new ComparativeInformationCommercial());
+		AtomicReference<List<CommercialInformation>>informations= new AtomicReference<>(new ArrayList<>());
 		
 		try(var scope= new StructuredTaskScope<>()){
 			for (Publication p : publications) {
@@ -42,44 +42,53 @@ public class ComparationSeviceImpl implements ComparationServices {
 							.getInformationCommercial(
 								p.getPublication(),p.getPublicationType(),token).getBody();
 					info.setId(id);
-					comparative.getBrand().add(new InfoCommercialProdcut(id,
+					comparative.get().getBrand().add(new InfoCommercialProdcut(id,
 							getBrand(info.getBrand())));
-					comparative.getDiscount_porcentage().add(new InfoCommercialProdcut(id,
+					comparative.get().getName().add(new InfoCommercialProdcut(id,
+							info.getName()));
+					comparative.get().getDiscount_porcentage().add(new InfoCommercialProdcut(id,
 							getDiscount(info.getDiscount_porcentage())));
-					comparative.getAvailables().add(new InfoCommercialProdcut(id,
+					comparative.get().getAvailables().add(new InfoCommercialProdcut(id,
 							info.getAvailables()));
-					comparative.getRating_average().add(new InfoCommercialProdcut(id, 
+					comparative.get().getRating_average().add(new InfoCommercialProdcut(id, 
 							info.getRating_average()+""));
-					comparative.getInternational_delivery_mode()
+					comparative.get().getInternational_delivery_mode()
 							.add(new InfoCommercialProdcut(id,isInternationalDelivery(info)));
-					comparative.getPayment_methods().add(new InfoCommercialProdcut(id,
+					comparative.get().getPayment_methods().add(new InfoCommercialProdcut(id,
 							info.getPayment_methods()));
-					comparative.getPrice().add(new InfoCommercialProdcut(id,
+					comparative.get().getPrice().add(new InfoCommercialProdcut(id,
 							"$ "+info.getPrice()+" "+info.getCurrency_id()));
-					comparative.getWarranty().add(new InfoCommercialProdcut(id, 
+					comparative.get().getWarranty().add(new InfoCommercialProdcut(id, 
 							getWarranaty(info.getWarranty())));
-					comparative.getTotal_sales().add(new InfoCommercialProdcut(id, 
+					comparative.get().getTotal_sales().add(new InfoCommercialProdcut(id, 
 							info.getTotal_sales()));
+					
+					comparative.get().getPicture().add(new InfoCommercialProdcut(id, 
+							info.getPicture()));
+					
+					comparative.get().getPermalink().add(new InfoCommercialProdcut(id, 
+							info.getPermalink()));
+					
 			
-					informations.add(info);
+					informations.get().add(info);
 					return info;
 				});
 				
 			}
 			scope.join();
-			boolean containsHandlingInfo=shippingService.existHandlingTime(informations);
+			boolean containsHandlingInfo=shippingService.existHandlingTime(informations.get());
 			if(containsHandlingInfo) {
-				comparative.setShipping_comparative(new ArrayList<>());
-				shippingService.getAddress(informations).forEach(a -> {
+				comparative.get().setShipping_comparative(new ArrayList<>());
+				shippingService.getAddress(informations.get()).forEach(a -> {
 					ShippingComparative ship= new ShippingComparative();
 					ship.setCity(a);
-					comparative.getShipping_comparative().add(ship);	
+					comparative.get().getShipping_comparative().add(ship);	
 				});
 
-				informations.forEach(t -> {
+				informations.get().forEach(t -> {
 					if(t.getShipping().getHandling_costs()!=null) {
 						t.getShipping().getHandling_costs().forEach(h ->{
-							comparative.getShipping_comparative().forEach(ship ->{
+							comparative.get().getShipping_comparative().forEach(ship ->{
 								if(ship.getCity().equals(h.getAddress())) {
 									ship.getProducts().add(gethandlingComparative(t,h));
 								}
@@ -87,23 +96,23 @@ public class ComparationSeviceImpl implements ComparationServices {
 						});
 					}
 					else {
-						comparative.getShipping_comparative().forEach(ship ->{
+						comparative.get().getShipping_comparative().forEach(ship ->{
 							ship.getProducts().add(gethandlingComparative(t,null));
 						});
 					}
 				});
 			}
-			if(shippingService.containtShippingFree(informations)&&!containsHandlingInfo){
-				comparative.setShipping(new ArrayList<>());
-				informations.forEach(com ->{
-					comparative.getShipping().add(getShipping(com));
+			if(shippingService.containtShippingFree(informations.get())&&!containsHandlingInfo){
+				comparative.get().setShipping(new ArrayList<>());
+				informations.get().forEach(com ->{
+					comparative.get().getShipping().add(getShipping(com));
 				});
 			}
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 		
-		return comparative;
+		return comparative.get();
 	}
 
 	private HandlingComparative gethandlingComparative(CommercialInformation t, 

@@ -55,8 +55,8 @@ public class OpinionItem implements OpinionService {
 		            futures.add(CompletableFuture.supplyAsync(new FutureTaskOpinions
 		            		(id,offset,token,client, contentReview, rateReview, reviewsItem),
 		            		 executor));
-		            if(offset==10 && total >15) {
-		            	offset=total-limit;
+		            if(offset==10) {
+		            	break;
 		            }
 		            }
 	        }
@@ -73,7 +73,6 @@ public class OpinionItem implements OpinionService {
 	            try {
 					opinions.addAll(future.get());
 				} catch ( Exception e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 	        }

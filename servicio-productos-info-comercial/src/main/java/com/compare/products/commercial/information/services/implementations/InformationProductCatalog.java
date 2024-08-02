@@ -62,6 +62,9 @@ public class InformationProductCatalog implements InformationCommercialService {
 
 		CompletableFuture.runAsync(() ->{
 			information.setDiscount_porcentage(getDiscount(jsonNode));
+			information.setName(jsonNode.at("/name").asText());
+			information.setPermalink(jsonNode.at("/permalink").asText());
+			information.setPicture(getPicture(jsonNode));
 			information.setPrice(jsonNode.at(ProductPrice).asDouble());
 			information.setCurrency_id(jsonNode.at(currency).asText());
 			information.setInternational_delivery_mode(jsonNode.at(international).asText());
@@ -131,6 +134,13 @@ public class InformationProductCatalog implements InformationCommercialService {
 		return null;
 		
 	}
+	
+	@Override
+	public JsonNode getPicture(JsonNode jsonNode) {
+		// TODO Auto-generated method stub
+		return jsonNode.at("/pictures").get(0);
+	}
+
 	
 	private Double getRatingAverage(String id,PublicationType type,boolean isparent,String token) {
 		return client.getRatingAverage(id, type, isparent, token).getBody();

@@ -2,6 +2,8 @@ package com.compare.products.commercial.information.models;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,6 +17,7 @@ public class CommercialInformation implements Serializable{
 	
 	private static final long serialVersionUID = 1L;
 	private String brand;
+	private String name;
 	private double price;
 	private int discount_porcentage;
 	private String currency_id;
@@ -25,6 +28,8 @@ public class CommercialInformation implements Serializable{
 	private String payment_methods;
 	private Warranty warranty;
 	private Shipping shipping;
+	private String permalink;
+	private JsonNode picture;
 	
 	
 }

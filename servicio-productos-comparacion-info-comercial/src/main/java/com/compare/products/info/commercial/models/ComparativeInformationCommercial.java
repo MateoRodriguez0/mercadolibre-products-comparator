@@ -20,9 +20,16 @@ public class ComparativeInformationCommercial {
 		this.international_delivery_mode= new ArrayList<>();
 		this.payment_methods= new ArrayList<>();
 		this.warranty= new ArrayList<>();
+		this.permalink= new ArrayList<>();
+		this.picture= new ArrayList<>();
+		this.name= new ArrayList<>();
+
 	}
 	
 	private List<InfoCommercialProdcut> brand;
+	private List<InfoCommercialProdcut> name;
+	private List<InfoCommercialProdcut> permalink;
+	private List<InfoCommercialProdcut> picture;
 	private List<InfoCommercialProdcut> price;
 	private List<InfoCommercialProdcut> discount_porcentage;
 	private List<InfoCommercialProdcut> total_sales;

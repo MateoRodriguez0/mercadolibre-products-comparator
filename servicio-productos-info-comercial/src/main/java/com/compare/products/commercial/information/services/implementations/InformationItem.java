@@ -61,7 +61,10 @@ public class InformationItem implements InformationCommercialService {
 			
 		CompletableFuture.runAsync(() ->{
 			information.setDiscount_porcentage(getDiscount(jsonNode));
+			information.setName(jsonNode.at("/title").asText());
 			information.setPrice(jsonNode.at(ItemPrice).asDouble());
+			information.setPermalink(jsonNode.at("/permalink").asText());
+			information.setPicture(getPicture(jsonNode));
 			information.setCurrency_id(jsonNode.at(currency).asText());
 			information.setInternational_delivery_mode(jsonNode.at(international).asText());
 			},service); 
@@ -144,6 +147,12 @@ public class InformationItem implements InformationCommercialService {
 		}
 	}
 	
+	@Override
+	public JsonNode getPicture(JsonNode jsonNode) {
+		// TODO Auto-generated method stub
+		return jsonNode.at("/pictures").get(0);
+	}
+
 	
 	
 	@Autowired
@@ -226,4 +235,5 @@ public class InformationItem implements InformationCommercialService {
 	@Autowired
 	private PaymentMethodsService paymentMethodsService;
 
+	
 }

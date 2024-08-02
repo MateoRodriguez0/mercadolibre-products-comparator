@@ -1,6 +1,5 @@
 package com.products.compare.vendedores.clients;
 
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,7 +20,6 @@ public interface SellerFeignClient {
 			@RequestParam(name ="seller_id")String id);
 	
 	@GetMapping(value = "/classified_locations/states/{state}")
-	@Cacheable(value = "InfoStateCache")
 	public ResponseEntity<ObjectNode>  getInfoByStateId(@PathVariable(name = "state") String state);
 	
 	@GetMapping(value = "/questions/search")

@@ -1,2 +1,3 @@
+//Docker\:tcp\://localhost\:2375\:org.springframework.ide.eclipse.boot.dash.docker.runtarget.DockerDeployments=\!\!org.springframework.ide.eclipse.boot.dash.docker.runtarget.DockerDeploymentList\ndeployments\: []\n
 eclipse.preferences.version=1
 toggle-filters\:enableRegexFilter=false

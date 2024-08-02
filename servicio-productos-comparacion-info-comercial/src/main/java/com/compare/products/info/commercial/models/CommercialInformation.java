@@ -1,6 +1,7 @@
 package com.compare.products.info.commercial.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.JsonNode;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,6 +16,7 @@ public class CommercialInformation {
 	
 	@JsonIgnore
 	private String id;
+	private String name;
 	private String brand;
 	private double price;
 	private int discount_porcentage;
@@ -26,6 +28,8 @@ public class CommercialInformation {
 	private String payment_methods;
 	private Warranty warranty;
 	private Shipping shipping;
+	private String permalink;
+	private JsonNode picture;
 	
 	
 }

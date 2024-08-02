@@ -12,6 +12,7 @@ public interface InformationCommercialService {
 
 	@Cacheable(value = "ProductInfoComercialCache")
 	public CommercialInformation getInfoCommercial(JsonNode jsonNode) throws HttpClientErrorException ;
+	public JsonNode getPicture(JsonNode jsonNode);
 	public int getDiscount(JsonNode jsonNode);
 	public double getRatingAverage(String itemId,String token);
 	public Warranty getWarranty(JsonNode jsonNode);

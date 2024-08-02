@@ -27,10 +27,6 @@ public class RedisConfig {
 				        .entryTtl(Duration.ofMinutes(30))
 				        .serializeValuesWith(SerializationPair.fromSerializer(
 				        		new GenericJackson2JsonRedisSerializer())))
-			    .withCacheConfiguration("InfoStateCache", RedisCacheConfiguration.defaultCacheConfig()
-				        .entryTtl(Duration.ofHours(1))
-				        .serializeValuesWith(SerializationPair.fromSerializer(
-				        		new GenericJackson2JsonRedisSerializer())))
 			    .build();
 				
 		return cacheManager;

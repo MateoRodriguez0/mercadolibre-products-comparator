@@ -2,6 +2,7 @@ package com.compare.products.vendedores.services.implementations;
 
 import java.util.List;
 import java.util.concurrent.StructuredTaskScope;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,7 +30,7 @@ public class CompartionServiceImpl implements ComparationService{
 	@Override
 	public ComarativeInfoSellers compare(List<SellerCompare> sellers) throws InterruptedException {
 		String token = request.getHeader("Authorization");
-		ComarativeInfoSellers comarative=new ComarativeInfoSellers();
+		AtomicReference<ComarativeInfoSellers>comarative= new AtomicReference<>(new ComarativeInfoSellers());
 		
 		try(var scope= new StructuredTaskScope<>()){
 			for (SellerCompare seller : sellers) {
@@ -38,42 +39,42 @@ public class CompartionServiceImpl implements ComparationService{
 							seller.getItems(), token);
 			
 					
-					comarative.getNickname().add(new InfoSeller(
+					comarative.get().getNickname().add(new InfoSeller(
 							seller.getPublication_id(), s.getNickname()));
-					comarative.getResponse_time().add(new InfoSeller(
+					comarative.get().getResponse_time().add(new InfoSeller(
 							seller.getPublication_id(), getResponseTime(s)));
 					
-					comarative.getLinks().add(new InfoSeller(
+					comarative.get().getLinks().add(new InfoSeller(
 							seller.getPublication_id(),s.getPermalink()));
 
-					comarative.getMetrics().getClaims().add(new InfoSeller(
+					comarative.get().getMetrics().getClaims().add(new InfoSeller(
 							seller.getPublication_id(),getclaims(s.getMetrics())));
 					
-					comarative.getMetrics().getCancellations().add(new InfoSeller(
+					comarative.get().getMetrics().getCancellations().add(new InfoSeller(
 							seller.getPublication_id(),getCancelations(s.getMetrics())));
 					
-					comarative.getMetrics().getDelayed_handling_time().add(new InfoSeller(
+					comarative.get().getMetrics().getDelayed_handling_time().add(new InfoSeller(
 							seller.getPublication_id(),getDelays(s.getMetrics())));
 					
-					comarative.getSales().add(new InfoSeller(
+					comarative.get().getSales().add(new InfoSeller(
 							seller.getPublication_id(),getSales(s.getMetrics())));
 					
-					comarative.getExperience().add(new InfoSeller(
+					comarative.get().getExperience().add(new InfoSeller(
 							seller.getPublication_id(),s.getExperience()));
 
-					comarative.getMercadoLider_level().add(new InfoSeller(
+					comarative.get().getMercadoLider_level().add(new InfoSeller(
 							seller.getPublication_id(),getMercadoLider(s.getMercadoLider_level())));
 					
-					comarative.getNegative_rating().add(new InfoSeller(
+					comarative.get().getNegative_rating().add(new InfoSeller(
 							seller.getPublication_id(),(int)(s.getNegative_rating()*100)+"%"));
 
-					comarative.getNeutral_rating().add(new InfoSeller(
+					comarative.get().getNeutral_rating().add(new InfoSeller(
 							seller.getPublication_id(),(int)(s.getNeutral_rating()*100)+"%"));
 					
-					comarative.getPositive_rating().add(new InfoSeller(
+					comarative.get().getPositive_rating().add(new InfoSeller(
 							seller.getPublication_id(),(int)(s.getPositive_rating()*100)+"%"));
 					
-					comarative.getLocation().add(new InfoSeller(
+					comarative.get().getLocation().add(new InfoSeller(
 							seller.getPublication_id(),s.getLocation()));
 					return true;
 				});
@@ -81,7 +82,7 @@ public class CompartionServiceImpl implements ComparationService{
 			scope.join();
 		}
 		
-		return comarative;
+		return comarative.get();
 	}
 	
 	

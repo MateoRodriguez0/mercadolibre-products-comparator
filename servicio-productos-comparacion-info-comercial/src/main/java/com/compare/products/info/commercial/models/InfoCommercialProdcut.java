@@ -11,5 +11,5 @@ import lombok.NoArgsConstructor;
 @Builder
 public class InfoCommercialProdcut {
 	private String publicaton_id;
-	private String value;	
+	private Object value;	
 }
