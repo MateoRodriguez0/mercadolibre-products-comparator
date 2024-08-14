@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <qualifiedTypeNameHistroy>
-    <fullyQualifiedTypeName name="com.compare.products.opinion.analysis.models.analysis"/>
-    <fullyQualifiedTypeName name="com.compare.products.opinion.analysis.services.implementations.PublicationOpinion"/>
-    <fullyQualifiedTypeName name="com.compare.products.opinions.models.PublicationType"/>
     <fullyQualifiedTypeName name="com.compare.products.opinions.services.OpinionServiceFacade"/>
     <fullyQualifiedTypeName name="org.springframework.cache.annotation.EnableCaching"/>
     <fullyQualifiedTypeName name="org.springframework.cache.CacheManager"/>
@@ -55,9 +52,12 @@
     <fullyQualifiedTypeName name="java.util.List"/>
     <fullyQualifiedTypeName name="java.util.Arrays"/>
     <fullyQualifiedTypeName name="java.lang.Exception"/>
-    <fullyQualifiedTypeName name="com.fasterxml.jackson.databind.JsonNode"/>
     <fullyQualifiedTypeName name="java.lang.Object"/>
-    <fullyQualifiedTypeName name="java.util.concurrent.CopyOnWriteArrayList"/>
     <fullyQualifiedTypeName name="java.util.concurrent.atomic.AtomicReferenceArray"/>
     <fullyQualifiedTypeName name="java.util.concurrent.atomic.AtomicReference"/>
+    <fullyQualifiedTypeName name="org.springframework.web.bind.annotation.RequestHeader"/>
+    <fullyQualifiedTypeName name="com.fasterxml.jackson.databind.JsonNode"/>
+    <fullyQualifiedTypeName name="org.springframework.data.redis.serializer.RedisSerializationContext"/>
+    <fullyQualifiedTypeName name="java.io.Serializable"/>
+    <fullyQualifiedTypeName name="java.util.concurrent.CopyOnWriteArrayList"/>
 </qualifiedTypeNameHistroy>

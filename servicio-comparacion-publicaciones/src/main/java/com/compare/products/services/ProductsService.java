@@ -43,8 +43,12 @@ public class ProductsService {
 		try (var scope= new StructuredTaskScope<String>()){
 			for (JsonNode id : Childrens) {
 				subtasks.add(scope.fork(() -> {
-					JsonNode product= apiClient.getProduct(id.asText(), token).getBody();
-					return product.at(this.productItemId).asText();
+					try {
+	                    JsonNode product = apiClient.getProduct(id.asText(), token).getBody();
+	                    return product.at(this.productItemId).asText();
+	                } catch (Exception e) {
+	                    return "";
+	                }
 				}));	
 			}
 			scope.join();

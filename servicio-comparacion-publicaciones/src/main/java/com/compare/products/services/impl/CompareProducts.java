@@ -73,7 +73,6 @@ public class CompareProducts implements ComparePublicationsService {
 						seller.setId(p.getPublication().at(sellerItem).asText());
 					}
 					sellers.add(seller);
-					System.out.println(seller);
 					return true;
 				});
 			}

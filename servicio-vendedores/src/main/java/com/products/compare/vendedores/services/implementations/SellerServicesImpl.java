@@ -75,7 +75,6 @@ public class SellerServicesImpl implements SellerServices {
 	}
 	
 	public void setInfo(ObjectNode sellerJson,Seller seller) {
-		JsonNode reputationNode=sellerJson.at(reputationSeller);
 		
 		try(var scope= new StructuredTaskScope<>()){
 			scope.fork(() ->{
@@ -94,9 +93,7 @@ public class SellerServicesImpl implements SellerServices {
 				return null;
 			});
 			scope.fork(() ->{
-				if(reputationNode.at(sellerPowerStatus).asText()!="null") {
-					seller.setMercadoLider_level(reputationNode.at(sellerPowerStatus).asText());
-				}
+				seller.setMercadoLider_level(sellerJson.at(sellerPowerStatus).asText()); 
 				return null;
 			});
 			

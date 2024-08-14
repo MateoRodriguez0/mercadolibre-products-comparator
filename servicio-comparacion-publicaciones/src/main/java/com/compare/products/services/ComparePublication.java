@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.concurrent.StructuredTaskScope;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -14,7 +14,6 @@ import com.compare.products.clients.AnalisisUrlClient;
 import com.compare.products.clients.MercadolibreFeignClient;
 import com.compare.products.models.ItemDetails;
 import com.compare.products.models.Publication;
-import com.compare.products.models.PublicationComparative;
 import com.compare.products.models.PublicationType;
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -24,6 +23,10 @@ import jakarta.servlet.http.HttpServletRequest;
 @Scope("prototype")
 public class ComparePublication {
 
+	@Cacheable(value = "comparativeProductCache", key = "#urls",
+			unless = "#result == 'NOT_IS_PRODUCT' || #result == 'INTERNAL_SERVER_ERROR'"
+					+ "|| #result == 'NUMBER_LINKS_NOT_ACCEPTED' || #result == 'ALL_URLS_INVALID'"
+					+ "|| #result == 'ONE_URL_INVALID'")
 	public Object comparisonAttempt(String [] urls) {
 		if(urls.length<2) {
 			return "NUMBER_LINKS_NOT_ACCEPTED";
@@ -41,10 +44,7 @@ public class ComparePublication {
 					.map(p ->p.getPublication()).toList());
 			if (areProducts) {
 				try {
-					PublicationComparative cacheValue=service.getComparative(publications);
-					cacheManager.getCache("comparativeProductCache")
-					 .put(urls, cacheValue);
-					return cacheValue;
+					return service.getComparative(publications);
 				} catch (Exception e) {
 					e.printStackTrace();
 					return "INTERNAL_SERVER_ERROR";
@@ -128,7 +128,4 @@ public class ComparePublication {
 	private ComparePublicationsService service;
 	@Autowired
 	private AnalisisUrlClient urlClient;
-	
-	@Autowired
-	private CacheManager cacheManager;	
 }
