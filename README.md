@@ -2,6 +2,9 @@
 
 Compare products, allows you to see the similarities and differences between the compared products. This app integrates with the MercadoLibre API and allows you to compare products using the urls of the publications, compares the information of the products, sellers and other things.
 
+![Captura de pantalla 2024-08-14 145751](https://github.com/user-attachments/assets/735244da-4813-4639-b02f-c601eb8dc99f)
+
+
 ## authentication and authorization
 
 In order to access the application resources, the Authentication and Authorization processes must be carried out. In this way the user will be able to interact with the application in the name of their MercadoLibre account. To authenticate you must register with your Mercadolibre account and after everything is successful you will be redirected to the home page.
