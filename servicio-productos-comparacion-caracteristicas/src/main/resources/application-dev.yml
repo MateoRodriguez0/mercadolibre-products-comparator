@@ -1,0 +1,19 @@
+spring:
+  data:
+   redis:
+     host: redis-14989.c263.us-east-1-2.ec2.redns.redis-cloud.com
+     port: 14989
+     username: root
+     password: Root.123
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+eureka:
+ client:
+  service-url:
+   defaultZone: http://eurekaclient:eurekaclient@localhost:8761/eureka/
+server:
+  port: 0
+   

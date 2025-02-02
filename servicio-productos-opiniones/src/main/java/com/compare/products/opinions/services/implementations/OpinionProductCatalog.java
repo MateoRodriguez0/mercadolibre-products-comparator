@@ -124,6 +124,7 @@ public class OpinionProductCatalog implements OpinionService{
 	}
 	
 	public JsonNode getCatalogProduct(String id,String token) {
+		System.out.println(token+ "---"+ id);
 		return client.findCatalogProduct(id, token).getBody();
 	}
 

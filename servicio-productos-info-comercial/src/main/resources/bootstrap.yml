@@ -1,6 +1,9 @@
 spring:
   application:
     name: servicio-productos-info-comercial
+  threads:
+   virtual:
+    enabled: true
   profiles:
     active: 
     - dev
@@ -8,12 +11,17 @@ spring:
     import: 'optional:configserver:'
   cloud:
     config:
-      uri: http://18.222.25.32:8888
-      username: compareproductsconfig 
-      password: condenadoalexito.2022 
-eureka:
-  client:
-    service-url:
-      defaultZone: ${DISCOVERY_URI}
+      uri: ${CONFIG_URI:http://localhost:8888}
+      username: ${CONFIG_USERNAME:config}  
+      password: ${CONFIG_PASSWORD:config} 
+
+eureka: 
   instance:
     instance-id: ${spring.application.name}:${random.value}
+management:
+  security:
+    enabled: false   
+  endpoints:
+    web:
+     exposure:
+      include: "*"

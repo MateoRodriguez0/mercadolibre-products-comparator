@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: servicio-comparacion-publicaciones
+  profiles:
+    active: 
+    - dev
+  config:
+    import: 'optional:configserver:'
+  cloud:
+    config:
+      uri: ${CONFIG_URI:http://localhost:8888}
+      username: ${CONFIG_USERNAME:confgi}  
+      password: ${CONFIG_PASSWORD:config} 
+eureka:
+  client:
+    service-url:
+      defaultZone: ${DISCOVERY_URI}
+  instance:
+    instance-id: ${spring.application.name}:${random.value}
+
+  
+  
+ 
+   
+     

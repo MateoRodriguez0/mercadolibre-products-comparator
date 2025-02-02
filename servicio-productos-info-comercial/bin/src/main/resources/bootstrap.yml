@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: servicio-productos-info-comercial
+  profiles:
+    active: 
+    - dev
+  config:
+    import: 'optional:configserver:'
+  cloud:
+    config:
+      uri: http://18.222.25.32:8888
+      username: compareproductsconfig 
+      password: condenadoalexito.2022 
+eureka:
+  client:
+    service-url:
+      defaultZone: ${DISCOVERY_URI}
+  instance:
+    instance-id: ${spring.application.name}:${random.value}

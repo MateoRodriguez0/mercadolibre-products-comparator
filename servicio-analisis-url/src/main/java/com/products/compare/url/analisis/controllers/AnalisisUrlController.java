@@ -30,7 +30,8 @@ public class AnalisisUrlController {
 	 * @return Devuelve un Objeto ItemDetails Correspondiene a la url recibida como parametro.
 	 */
 	@GetMapping(value="/searchcode")
-	public ResponseEntity<ItemDetails> getCodeForUrl(@RequestParam(name = "url")String url) {
+	public ResponseEntity<ItemDetails> getCodeForUrl(@RequestParam(name = "url") String url) {
+		System.out.println(url);
 		ItemDetails details=analisisUrlServiceient.CreateDetailsUrl(url);
 		if(details!=null) {
 			return ResponseEntity

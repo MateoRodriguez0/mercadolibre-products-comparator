@@ -1,20 +1,30 @@
 spring:
   application:
     name: servicio-vendedores
+  threads:
+   virtual:
+    enabled: true
   profiles:
     active: 
     - dev
   config:
     import: 'optional:configserver:'
   cloud:
-   config:
-     uri: ${CONFIG_URI:http://localhost:8888}
-     username: ${CONFIG_USERNAME:confgi}  
-     password: ${CONFIG_PASSWORD:config} 
- 
-eureka:
-  client:
-    service-url:
-      defaultZone: ${DISCOVERY_URI}
+    bus:
+      refresh:
+       enabled: true
+      enabled: true 
+    config:
+      uri: ${CONFIG_URI:http://localhost:8888}
+      username: ${CONFIG_USERNAME:config}  
+      password: ${CONFIG_PASSWORD:config} 
+eureka: 
   instance:
     instance-id: ${spring.application.name}:${random.value}
+management:
+  security:
+    enabled: false   
+  endpoints:
+    web:
+     exposure:
+      include: "*"

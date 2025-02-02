@@ -1,19 +1,30 @@
 spring:
   application:
     name: servicio-analisis-url
+  threads:
+    virtual:
+      enabled: true 
   profiles:
     active: 
-    - dev
+      - dev  
   config:
-    import: 'optional:configserver:'
+    import: 'optional:configserver:'  
   cloud:
-    config:
-      uri: ${CONFIG_URI:http://localhost:8888}
-      username: ${CONFIG_USERNAME:confgi}  
-      password: ${CONFIG_PASSWORD:config} 
+   bus:
+    enabled: true
+    refresh:
+     enabled: true
+   config:
+      uri: ${CONFIG_URI:http://localhost:8888}  
+      username: ${CONFIG_USERNAME:config}
+      password: ${CONFIG_PASSWORD:config}
 eureka:
-  client:
-    service-url:
-      defaultZone: ${DISCOVERY_URI}
   instance:
     instance-id: ${spring.application.name}:${random.value}
+management:
+  security:
+    enabled: false
+  endpoints:
+    web:
+      exposure:
+        include: "*"

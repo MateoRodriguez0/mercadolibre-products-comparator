@@ -1,6 +1,9 @@
 spring:
   application:
     name: servicio-productos-comparacion-info-comercial
+  threads:
+   virtual:
+    enabled: true
   profiles:
     active: 
     - dev
@@ -9,11 +12,16 @@ spring:
   cloud:
     config:
       uri: ${CONFIG_URI:http://localhost:8888}
-      username: ${CONFIG_USERNAME:confgi}  
+      username: ${CONFIG_USERNAME:config}  
       password: ${CONFIG_PASSWORD:config} 
-eureka:
-  client:
-    service-url:
-      defaultZone: ${DISCOVERY_URI}
+
+eureka: 
   instance:
     instance-id: ${spring.application.name}:${random.value}
+management:
+  security:
+    enabled: false   
+  endpoints:
+    web:
+     exposure:
+      include: "*"

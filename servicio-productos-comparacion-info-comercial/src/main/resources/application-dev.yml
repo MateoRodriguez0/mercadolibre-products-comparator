@@ -1,0 +1,17 @@
+spring:
+  data:
+   redis:
+     host: localhost
+     port: 6379
+     password: redis-admin
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+eureka:
+ client:
+  service-url:
+   defaultZone: http://eurekaclient:eurekaclient@localhost:8761/eureka/
+server:
+  port: 0
